@@ -8,6 +8,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('image'));
+require('dotenv').config()
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_DB, {
@@ -15,7 +16,7 @@ mongoose.connect(process.env.MONGO_DB, {
   useUnifiedTopology: true,
 })
   .then(() => {
-    console.log('Connected to MongoDB');
+    console.log('Server Running on http://localhost:8000');
 
 
     app.use('/users', userRoute);
@@ -26,7 +27,7 @@ mongoose.connect(process.env.MONGO_DB, {
 
 
     // Start the server
-    app.listen(3000, () => {
+    app.listen(8000, () => {
       console.log(`Server Running`);
     });
   })
