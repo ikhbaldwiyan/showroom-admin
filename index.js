@@ -1,5 +1,6 @@
 const express = require('express');
 const userRoute = require("./routes/userRoute")
+const scheduleRoutes = require("./routes/scheduleRoutes")
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -20,6 +21,7 @@ mongoose.connect(process.env.MONGO_DB, {
 
 
     app.use('/users', userRoute);
+    app.use('/schedules', scheduleRoutes);
 
     app.get('/', (req, res) => {
       res.redirect('/users')
