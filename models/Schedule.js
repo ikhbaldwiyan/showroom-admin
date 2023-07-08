@@ -24,7 +24,7 @@ const scheduleSchema = new mongoose.Schema(
     isOnWeekSchedule: {
       type: Boolean,
       required: true,
-      default: false,
+      default: true,
     },
     setlist: {
       type: String,
