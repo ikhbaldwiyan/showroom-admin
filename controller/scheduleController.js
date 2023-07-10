@@ -3,7 +3,7 @@ const Schedule = require("../models/Schedule");
 // GET all theater schedules
 exports.getAllSchedules = async (req, res) => {
   try {
-    const schedules = await Schedule.find();
+    const schedules = await Schedule.find().populate('memberList');
     res.json(schedules);
   } catch (error) {
     res.status(500).send("Internal Server Error");
@@ -33,16 +33,19 @@ exports.createSchedule = async (req, res) => {
       setlist,
       memberList,
     } = req.body;
+
+    const memberIds = memberList.map(member => member);
     const newSchedule = new Schedule({
       showDate,
       showTime,
+      setlist,
       isBirthdayShow,
       birthdayMemberName,
       isOnWeekSchedule,
-      setlist,
-      memberList,
+      memberList: memberIds,
     });
     const createdSchedule = await newSchedule.save();
+    
     res.json(createdSchedule);
   } catch (error) {
     res.status(500).send("Internal Server Error");
@@ -61,6 +64,7 @@ exports.updateSchedule = async (req, res) => {
       birthdayMemberName,
       isOnWeekSchedule,
     } = req.body;
+    const memberIds = memberList.map(member => member);
     const updatedSchedule = await Schedule.findByIdAndUpdate(
       req.params.id,
       {
@@ -68,9 +72,9 @@ exports.updateSchedule = async (req, res) => {
         showTime,
         isBirthdayShow,
         setlist,
-        memberList,
         birthdayMemberName,
         isOnWeekSchedule,
+        memberList: memberIds,
       },
       { new: true }
     );

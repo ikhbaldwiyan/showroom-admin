@@ -30,17 +30,10 @@ const scheduleSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    memberList: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        image: {
-          type: String,
-        },
-      },
-    ],
+    memberList: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Member',
+    }],
   },
   {
     collection: "theater-schedules", // Specify the desired collection name
