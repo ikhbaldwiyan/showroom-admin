@@ -13,7 +13,7 @@ exports.getAllSchedules = async (req, res) => {
 // GET a specific theater schedule
 exports.getScheduleById = async (req, res) => {
   try {
-    const schedule = await Schedule.findById(req.params.id);
+    const schedule = await Schedule.findById(req.params.id).populate("memberList");
     if (!schedule) return res.status(404).send("Schedule not found.");
     res.json(schedule);
   } catch (error) {
