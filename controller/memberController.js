@@ -1,14 +1,43 @@
 const Member = require("../models/Member");
 
-// GET all members
 exports.getAllMembers = async (req, res) => {
   try {
-    const members = await Member.find();
-    res.json(members);
+    const type = req.query.type; // Member type filter
+    const showAll = req.query.showAll === "true"; // Check if showAll parameter is true
+
+    let members;
+    let count;
+
+    if (showAll) {
+      // Fetch all members of the specified type
+      members = await Member.find({ type });
+      count = members.length;
+    } else {
+      // Apply pagination for the specified type
+      const page = parseInt(req.query.page) || 1; // Current page number, default is 1
+      const limit = 10; // Number of members per page
+
+      const filter = type ? { type } : {}; // Create filter object
+
+      count = await Member.countDocuments(filter); // Total number of members matching the filter
+      const totalPages = Math.ceil(count / limit); // Total number of pages
+
+      const skip = (page - 1) * limit; // Number of members to skip
+
+      members = await Member.find(filter).skip(skip).limit(limit); // Fetch members for the current page
+    }
+
+    res.json({
+      members,
+      currentPage: 1,
+      totalPages: 1,
+      totalMembers: count,
+    });
   } catch (error) {
     res.status(500).send("Internal Server Error");
   }
 };
+
 
 // GET a specific member
 exports.getMemberById = async (req, res) => {
