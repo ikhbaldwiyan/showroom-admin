@@ -32,6 +32,8 @@ exports.createSchedule = async (req, res) => {
       isOnWeekSchedule,
       setlist,
       memberList,
+      ticketShowroom,
+      ticketTheater,
     } = req.body;
 
     const memberIds = memberList.map(member => member);
@@ -43,9 +45,11 @@ exports.createSchedule = async (req, res) => {
       birthdayMemberName,
       isOnWeekSchedule,
       memberList: memberIds,
+      ticketShowroom,
+      ticketTheater,
     });
     const createdSchedule = await newSchedule.save();
-    
+
     res.json(createdSchedule);
   } catch (error) {
     res.status(500).send("Internal Server Error");
@@ -63,8 +67,10 @@ exports.updateSchedule = async (req, res) => {
       memberList,
       birthdayMemberName,
       isOnWeekSchedule,
+      ticketShowroom,
+      ticketTheater
     } = req.body;
-    const memberIds = memberList.map(member => member);
+    const memberIds = memberList?.map(member => member);
     const updatedSchedule = await Schedule.findByIdAndUpdate(
       req.params.id,
       {
@@ -75,12 +81,15 @@ exports.updateSchedule = async (req, res) => {
         birthdayMemberName,
         isOnWeekSchedule,
         memberList: memberIds,
+        ticketShowroom,
+        ticketTheater
       },
       { new: true }
     );
     if (!updatedSchedule) return res.status(404).send("Schedule not found.");
     res.json(updatedSchedule);
   } catch (error) {
+    console.log(error)
     res.status(500).send("Internal Server Error");
   }
 };

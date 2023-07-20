@@ -30,6 +30,14 @@ const scheduleSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    ticketShowroom: {
+      type: String,
+      required: true,
+    },
+    ticketTheater: {
+      type: String,
+      required: true,
+    },
     memberList: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Member',
