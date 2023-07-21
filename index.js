@@ -7,6 +7,7 @@ const app = express();
 const userRoute = require("./routes/userRoute");
 const scheduleRoutes = require("./routes/scheduleRoutes");
 const memberRoutes = require("./routes/memberRoutes");
+const setlistRoutes = require('./routes/setlistRoutes');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -24,6 +25,7 @@ mongoose
 
     app.use("/users", userRoute);
     app.use("/schedules", scheduleRoutes);
+    app.use('/setlists', setlistRoutes);
     app.use("/member", memberRoutes);
 
     app.get("/", (req, res) => {

@@ -27,8 +27,8 @@ const scheduleSchema = new mongoose.Schema(
       default: true,
     },
     setlist: {
-      type: String,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Setlist',
     },
     ticketShowroom: {
       type: String,
