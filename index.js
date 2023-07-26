@@ -7,7 +7,8 @@ const app = express();
 const userRoute = require("./routes/userRoute");
 const scheduleRoutes = require("./routes/scheduleRoutes");
 const memberRoutes = require("./routes/memberRoutes");
-const setlistRoutes = require('./routes/setlistRoutes');
+const setlistRoutes = require("./routes/setlistRoutes");
+const premiumLiveRoutes = require("./routes/premiumLiveRoutes");
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -25,11 +26,14 @@ mongoose
 
     app.use("/users", userRoute);
     app.use("/schedules", scheduleRoutes);
-    app.use('/setlists', setlistRoutes);
+    app.use("/setlists", setlistRoutes);
     app.use("/member", memberRoutes);
+    app.use("/premium-lives", premiumLiveRoutes);
 
     app.get("/", (req, res) => {
-      res.redirect("/users");
+      res.send({
+        "message": "Welcome To JKT48 Showroom Admin"
+      });
     });
 
     // Start the server
