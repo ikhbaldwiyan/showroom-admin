@@ -69,6 +69,10 @@ const scheduleSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Member',
     }],
+    webImage: {
+      type: String, 
+      required: false,
+    },
   },
   {
     collection: "theater-schedules",

@@ -34,6 +34,7 @@ exports.createSchedule = async (req, res) => {
       memberList,
       ticketShowroom,
       ticketTheater,
+      webImage,
     } = req.body;
 
     const memberIds = memberList.map((member) => member);
@@ -48,6 +49,7 @@ exports.createSchedule = async (req, res) => {
       memberList: memberIds,
       ticketShowroom,
       ticketTheater,
+      webImage,
     });
     const createdSchedule = await newSchedule.save();
 
@@ -82,7 +84,8 @@ exports.updateSchedule = async (req, res) => {
       birthdayMember,
       isOnWeekSchedule,
       ticketShowroom,
-      ticketTheater
+      ticketTheater,
+      webImage,
     } = req.body;
 
     const memberIds = memberList?.map((member) => member);
@@ -97,10 +100,12 @@ exports.updateSchedule = async (req, res) => {
         isOnWeekSchedule,
         memberList: memberIds,
         ticketShowroom,
-        ticketTheater
+        ticketTheater,
+        webImage,
       },
       { new: true }
     );
+    
     if (!updatedSchedule) return res.status(404).send("Schedule not found.");
     res.json(updatedSchedule);
   } catch (error) {
