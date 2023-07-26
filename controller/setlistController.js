@@ -36,12 +36,18 @@ exports.updateSetlist = async (req, res) => {
     const { name, description, originalName, songs, image } = req.body;
     const updatedSetlist = await Setlist.findByIdAndUpdate(
       req.params.id,
-      { name, originalName, description, songs, image },
+      {
+        name,
+        originalName,
+        description,
+        songs,
+        image,
+      },
       { new: true }
     );
     res.json(updatedSetlist);
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(400).json({ error: "Bad Request" });
   }
 };

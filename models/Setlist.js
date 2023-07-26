@@ -1,5 +1,15 @@
-// models/setlistModel.js
 const mongoose = require('mongoose');
+
+const songSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  translatedTitle: {
+    type: String,
+    required: true,
+  },
+});
 
 const setlistSchema = new mongoose.Schema({
   name: {
@@ -15,13 +25,14 @@ const setlistSchema = new mongoose.Schema({
     required: true,
   },
   songs: {
-    type: [String], // Now it's an array of strings (songs)
+    type: [songSchema], // Now it's an array of objects (songs)
+    required: true,
   },
   image: {
     type: String,
     required: true,
   },
-},{
+}, {
   collection: "setlists", // Specify the desired collection name
 });
 
