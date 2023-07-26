@@ -41,6 +41,7 @@ exports.updateSetlist = async (req, res) => {
     );
     res.json(updatedSetlist);
   } catch (err) {
+    console.log(err)
     res.status(400).json({ error: "Bad Request" });
   }
 };

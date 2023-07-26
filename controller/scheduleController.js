@@ -52,7 +52,20 @@ exports.createSchedule = async (req, res) => {
 
     res.json(createdSchedule);
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    if (error.name === 'ValidationError') {
+      // Mongoose validation error
+      const errors = {};
+      for (const field in error.errors) {
+        errors[field] = error.errors[field].message;
+      }
+      res.status(400).json({ errors });
+    } else {
+      // Other unexpected errors
+      console.log(error);
+      res.status(500).send({
+        message: 'Internal server error.',
+      });
+    }
   }
 };
 
