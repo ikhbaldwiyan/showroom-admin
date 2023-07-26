@@ -28,7 +28,7 @@ exports.createSchedule = async (req, res) => {
       showDate,
       showTime,
       isBirthdayShow,
-      birthdayMemberName,
+      birthdayMember,
       isOnWeekSchedule,
       setlist,
       memberList,
@@ -36,13 +36,14 @@ exports.createSchedule = async (req, res) => {
       ticketTheater,
     } = req.body;
 
-    const memberIds = memberList.map(member => member);
+    const memberIds = memberList.map((member) => member);
+
     const newSchedule = new Schedule({
       showDate,
       showTime,
       setlist,
       isBirthdayShow,
-      birthdayMemberName,
+      birthdayMember,
       isOnWeekSchedule,
       memberList: memberIds,
       ticketShowroom,
@@ -78,12 +79,13 @@ exports.updateSchedule = async (req, res) => {
       isBirthdayShow,
       setlist,
       memberList,
-      birthdayMemberName,
+      birthdayMember,
       isOnWeekSchedule,
       ticketShowroom,
       ticketTheater
     } = req.body;
-    const memberIds = memberList?.map(member => member);
+
+    const memberIds = memberList?.map((member) => member);
     const updatedSchedule = await Schedule.findByIdAndUpdate(
       req.params.id,
       {
@@ -91,7 +93,7 @@ exports.updateSchedule = async (req, res) => {
         showTime,
         isBirthdayShow,
         setlist,
-        birthdayMemberName,
+        birthdayMember,
         isOnWeekSchedule,
         memberList: memberIds,
         ticketShowroom,

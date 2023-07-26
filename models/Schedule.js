@@ -1,5 +1,32 @@
 const mongoose = require("mongoose");
 
+const memberSchema = new mongoose.Schema({
+  _id: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  stage_name: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    required: true,
+  },
+  image: {
+    type: String,
+    required: true,
+  },
+  __v: {
+    type: Number,
+    select: false,
+  },
+});
+
 const scheduleSchema = new mongoose.Schema(
   {
     showDate: {
@@ -14,8 +41,8 @@ const scheduleSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    birthdayMemberName: {
-      type: String,
+    birthdayMember: {
+      type: memberSchema,
       required: function () {
         return this.isBirthdayShow;
       },
@@ -44,7 +71,7 @@ const scheduleSchema = new mongoose.Schema(
     }],
   },
   {
-    collection: "theater-schedules", // Specify the desired collection name
+    collection: "theater-schedules",
   }
 );
 
