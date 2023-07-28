@@ -53,6 +53,23 @@ const scheduleSchema = new mongoose.Schema(
       required: true,
       default: true,
     },
+    isComingSoon: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    isGraduationShow: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    graduateMember: {
+      type: memberSchema,
+      required: function () {
+        return this.isGraduationShow;
+      },
+      default: null,
+    },
     setlist: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Setlist',
