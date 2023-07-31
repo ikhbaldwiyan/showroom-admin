@@ -3,7 +3,13 @@ const Schedule = require("../models/Schedule");
 // GET all theater schedules
 exports.getAllSchedules = async (req, res) => {
   try {
-    const schedules = await Schedule.find().populate('memberList').populate('setlist');
+    const isOnWeekSchedule = req.query.isOnWeekSchedule;
+    const filter = isOnWeekSchedule ? { isOnWeekSchedule } : {}; 
+    
+    const schedules = await Schedule.find(filter)
+      .populate('memberList')
+      .populate('setlist');
+
     res.json(schedules);
   } catch (error) {
     res.status(500).send("Internal Server Error");
