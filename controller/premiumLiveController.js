@@ -1,4 +1,4 @@
-const PremiumLive = require("../models/premiumLive");
+const PremiumLive = require("../models/PremiumLive");
 
 const premiumLiveController = {
   getAllPremiumLives: async (req, res) => {
