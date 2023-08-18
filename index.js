@@ -9,6 +9,7 @@ const scheduleRoutes = require("./routes/scheduleRoutes");
 const memberRoutes = require("./routes/memberRoutes");
 const setlistRoutes = require("./routes/setlistRoutes");
 const premiumLiveRoutes = require("./routes/premiumLiveRoutes");
+const taskRoutes = require("./routes/taskRoutes");
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -29,6 +30,7 @@ mongoose
     app.use("/setlists", setlistRoutes);
     app.use("/member", memberRoutes);
     app.use("/premium-lives", premiumLiveRoutes);
+    app.use("/tasks", taskRoutes);
 
     app.get("/", (req, res) => {
       res.send({
