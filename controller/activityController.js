@@ -8,9 +8,8 @@ exports.createActivity = async (req, res) => {
     
     // Check if user_id and task_id exist
     const user = await User.findById(user_id);
-    const task = await Task.findById(task_id);
     
-    if (!user || !task) {
+    if (!user) {
       return res.status(404).json({ error: 'User or Task not found' });
     }
 
@@ -24,6 +23,7 @@ exports.createActivity = async (req, res) => {
     await newActivity.save();
     res.status(201).json(newActivity);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: 'An error occurred' });
   }
 };

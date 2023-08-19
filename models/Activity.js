@@ -17,7 +17,7 @@ const activitySchema = new mongoose.Schema({
   task: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Task',
-    required: true,
+    required: false,
   },
   timestamp: {
     type: Date,
