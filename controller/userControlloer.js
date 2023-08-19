@@ -38,6 +38,8 @@ exports.getUserPermissions = async (req, res) => {
     const transformedTaskProgress = user.progressData.taskProgress.map(taskProgress => {
       const taskWithProgress = taskProgress.taskId.toObject();
       taskWithProgress.progress = taskProgress.progress;
+      taskWithProgress.liveIds = taskProgress.liveIds;
+      taskWithProgress.status = taskProgress.status;
       return taskWithProgress;
     });
 

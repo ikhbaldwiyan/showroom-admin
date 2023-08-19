@@ -68,7 +68,7 @@ exports.toggleTaskStatus = async (req, res) => {
 
 exports.updateTaskProgress = async (req, res) => {
   try {
-    const { userId, progress } = req.body;
+    const { userId, progress, liveId } = req.body;
     const taskId = req.params.taskId;
     const user = await User.findById(userId);
 
@@ -78,6 +78,7 @@ exports.updateTaskProgress = async (req, res) => {
 
     if (taskProgress) {
       taskProgress.progress = progress;
+      taskProgress.liveIds = [...taskProgress.liveIds, liveId];
     } else {
       user.progressData.taskProgress.push({ taskId, progress });
     }
@@ -139,12 +140,12 @@ exports.completeTask = async (req, res) => {
           message: "Please complete the task to required criteria",
           task: {
             name: task.name,
-            description: task.description
+            description: task.description,
           },
           current_progress:
             user.progressData.taskProgress[taskProgressIndex].progress,
           criteria: task.criteria,
-          points: task.reward
+          points: task.reward,
         });
       }
 
@@ -157,5 +158,3 @@ exports.completeTask = async (req, res) => {
     res.status(500).json({ message: "An error occurred" });
   }
 };
-
-
