@@ -28,13 +28,24 @@ exports.createUser = async (req, res) => {
 exports.getUserPermissions = async (req, res) => {
   try {
     const userId = req.params.user_id;
-    const user = await User.findOne({ user_id: userId });
+    const user = await User.findOne({ user_id: userId }).populate('progressData.taskProgress.taskId');
 
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ error: 'User not found' });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
+
+    // Transform the user's taskProgress array to include progress within taskId object
+    const transformedTaskProgress = user.progressData.taskProgress.map(taskProgress => {
+      const taskWithProgress = taskProgress.taskId.toObject();
+      taskWithProgress.progress = taskProgress.progress;
+      taskWithProgress.liveIds = taskProgress.liveIds;
+      taskWithProgress.status = taskProgress.status;
+      return taskWithProgress;
+    });
+
+    user.progressData.taskProgress = transformedTaskProgress;
+    
+    res.json(user);
   } catch (error) {
     console.log(error)
 

@@ -10,6 +10,36 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  points: {
+    type: Number,
+    default: 0,
+  },
+  progressData: {
+    level: {
+      type: Number,
+      default: 1,
+    },
+    taskProgress: [
+      {
+        taskId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Task',
+        },
+        progress: Number,
+        status: {
+          type: String,
+          default: "inprogress"
+        },
+        liveIds: [String] 
+      },
+    ],
+    completedTasks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Task',
+      },
+    ],
+  },
   can_3_room: {
     type: Boolean,
     default: false,
