@@ -61,3 +61,16 @@ exports.deleteSetlist = async (req, res) => {
     res.status(400).json({ error: "Bad Request" });
   }
 };
+
+exports.detailSetlist = async (req, res) => {
+  try {
+    const setlist = await Setlist.findById(req.params.id);
+    if (!setlist) {
+      return res.status(404).json({ error: "Setlist not found" });
+    }
+    res.json(setlist);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
