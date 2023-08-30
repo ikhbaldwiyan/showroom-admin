@@ -5,10 +5,10 @@ const User = require("../models/User"); // Assuming you have a User model
 exports.createActivity = async (req, res) => {
   try {
     const { log_name, description, user_id, task_id } = req.body;
-    
+
     // Check if user_id and task_id exist
     const user = await User.findById(user_id);
-    
+
     if (!user) {
       return res.status(404).json({ error: 'User or Task not found' });
     }
@@ -19,7 +19,7 @@ exports.createActivity = async (req, res) => {
       user: user_id,
       task: task_id,
     });
-    
+
     await newActivity.save();
     res.status(201).json(newActivity);
   } catch (error) {
@@ -52,5 +52,22 @@ exports.getActivityById = async (req, res) => {
     res.json(activity);
   } catch (error) {
     res.status(500).json({ error: "An error occurred" });
+  }
+};
+
+exports.deleteActivityById = async (req, res) => {
+  try {
+    const activityId = req.params.id;
+
+    // Check if the activity log exists
+    const activity = await Activity.findByIdAndRemove(activityId);
+    if (!activity) {
+      return res.status(404).json({ error: 'Activity log not found' });
+    }
+
+    res.json({ message: 'Activity log deleted successfully' });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'An error occurred' });
   }
 };

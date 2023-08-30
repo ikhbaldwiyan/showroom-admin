@@ -5,6 +5,7 @@ const taskController = require('../controller/taskController');
 
 router.get('/', taskController.getTasks);
 router.post('/', taskController.createTask);
+router.get("/:id", taskController.detailTask);
 router.put('/:taskId', taskController.updateTask);
 router.delete('/:taskId', taskController.deleteTask);
 router.put('/toggle/:taskId', taskController.toggleTaskStatus);

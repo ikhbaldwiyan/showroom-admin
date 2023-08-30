@@ -23,7 +23,7 @@ const activitySchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-},{
+}, {
   collection: "activities-log", // Specify the desired collection name
 });
 
