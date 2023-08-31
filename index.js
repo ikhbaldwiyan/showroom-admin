@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
+const middleware = require("./utils/jwtMiddleware");
 
 const userRoute = require("./routes/userRoute");
 const scheduleRoutes = require("./routes/scheduleRoutes");
@@ -11,6 +12,8 @@ const setlistRoutes = require("./routes/setlistRoutes");
 const premiumLiveRoutes = require("./routes/premiumLiveRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const activityRoutes = require("./routes/activityRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -31,8 +34,10 @@ mongoose
     app.use("/setlists", setlistRoutes);
     app.use("/member", memberRoutes);
     app.use("/premium-lives", premiumLiveRoutes);
-    app.use("/tasks", taskRoutes);
-    app.use("/activity", activityRoutes);
+    app.use("/tasks", middleware, taskRoutes);
+    app.use("/activity", middleware, activityRoutes);
+    app.use("/admin-users", middleware, adminRoutes);
+    app.use("/login", authRoutes);
 
     app.get("/", (req, res) => {
       res.send({
