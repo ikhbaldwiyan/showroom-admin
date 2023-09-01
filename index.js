@@ -30,10 +30,10 @@ mongoose
     console.log("Server Running on http://localhost:8000");
 
     app.use("/users", userRoute);
-    app.use("/schedules", scheduleRoutes);
-    app.use("/setlists", setlistRoutes);
-    app.use("/member", memberRoutes);
-    app.use("/premium-lives", premiumLiveRoutes);
+    app.use("/schedules", middleware, scheduleRoutes);
+    app.use("/setlists", middleware, setlistRoutes);
+    app.use("/member", middleware, memberRoutes);
+    app.use("/premium-lives", middleware, premiumLiveRoutes);
     app.use("/tasks", middleware, taskRoutes);
     app.use("/activity", middleware, activityRoutes);
     app.use("/admin-users", middleware, adminRoutes);
@@ -41,7 +41,7 @@ mongoose
 
     app.get("/", (req, res) => {
       res.send({
-        "message": "Welcome To JKT48 Showroom Admin"
+        message: "Welcome To JKT48 Showroom Admin",
       });
     });
 
