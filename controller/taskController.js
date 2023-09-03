@@ -23,11 +23,28 @@ exports.createTask = async (req, res) => {
 
 exports.detailTask = async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const taskId = req.params.id;
+    const task = await Task.findById(taskId);
+    const users = await User.find(
+      { "progressData.taskProgress.taskId": taskId },
+      "user_id name progressData.taskProgress"
+    );
+
+    const listUsers = users.map((user) => ({
+      name: user.name,
+      user_id: user.user_id,
+      taskProgress: user.progressData.taskProgress
+        .filter((task) => task.taskId.toString() === taskId.toString())
+        .map((task) => ({
+          progress: task.progress,
+          status: task.status,
+        })),
+    }));
+
     if (!task) {
       return res.status(404).json({ error: "Task not found" });
     }
-    res.json(task);
+    res.json({ task, listUsers });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Internal Server Error" });
