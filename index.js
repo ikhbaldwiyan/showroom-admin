@@ -30,12 +30,12 @@ mongoose
     console.log("Server Running on http://localhost:8000");
 
     app.use("/users", userRoute);
-    app.use("/schedules", middleware, scheduleRoutes);
-    app.use("/setlists", middleware, setlistRoutes);
+    app.use("/schedules", scheduleRoutes);
+    app.use("/setlists", setlistRoutes);
     app.use("/member", middleware, memberRoutes);
-    app.use("/premium-lives", middleware, premiumLiveRoutes);
-    app.use("/tasks", middleware, taskRoutes);
-    app.use("/activity", middleware, activityRoutes);
+    app.use("/premium-lives", premiumLiveRoutes);
+    app.use("/tasks", taskRoutes);
+    app.use("/activity", activityRoutes);
     app.use("/admin-users", middleware, adminRoutes);
     app.use("/login", authRoutes);
 

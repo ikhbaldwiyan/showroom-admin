@@ -113,7 +113,7 @@ exports.completeTask = async (req, res) => {
 
     // Find the taskProgress entry for the specified task
     const taskProgressIndex = user.progressData.taskProgress.findIndex(
-      (taskProgress) => taskProgress.taskId.toString() === taskId
+      (taskProgress) => taskProgress.taskId._id.toString() === taskId
     );
 
     // If taskProgress entry is found and task criteria are met
