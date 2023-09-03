@@ -23,11 +23,28 @@ exports.createTask = async (req, res) => {
 
 exports.detailTask = async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const taskId = req.params.id;
+    const task = await Task.findById(taskId);
+    const users = await User.find(
+      { "progressData.taskProgress.taskId": taskId },
+      "user_id name progressData.taskProgress"
+    );
+
+    const listUsers = users.map((user) => ({
+      name: user.name,
+      user_id: user.user_id,
+      taskProgress: user.progressData.taskProgress
+        .filter((task) => task.taskId.toString() === taskId.toString())
+        .map((task) => ({
+          progress: task.progress,
+          status: task.status,
+        })),
+    }));
+
     if (!task) {
       return res.status(404).json({ error: "Task not found" });
     }
-    res.json(task);
+    res.json({ task, listUsers });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -107,13 +124,15 @@ exports.updateTaskProgress = async (req, res) => {
 exports.completeTask = async (req, res) => {
   try {
     const taskId = req.params.taskId;
-    const userId = req.body.userId;
+    const { userId, progressId } = req.body;
     const user = await User.findById(userId);
     const task = await Task.findById(taskId);
 
     // Find the taskProgress entry for the specified task
     const taskProgressIndex = user.progressData.taskProgress.findIndex(
-      (taskProgress) => taskProgress.taskId._id.toString() === taskId
+      (taskProgress) => {
+        return taskProgress._id.toString() === progressId.toString();
+      }
     );
 
     // If taskProgress entry is found and task criteria are met
@@ -126,22 +145,24 @@ exports.completeTask = async (req, res) => {
         user.progressData.taskProgress[taskProgressIndex].progress >=
         task.criteria
       ) {
-
         await User.updateOne(
           { _id: userId },
           {
             $push: { "progressData.completedTasks": taskId },
             $inc: { points: task.reward }, // Increment user's points by task reward
-            $set: { [`progressData.taskProgress.${taskProgressIndex}.status`]: 'completed' } // Update status to "completed"
+            $set: {
+              [`progressData.taskProgress.${taskProgressIndex}.status`]:
+                "completed",
+            }, // Update status to "completed"
           }
         );
         return res.json({
           message: `Congrats task completed you get ${task.reward} Points `,
           task: {
             name: task.name,
-            description: task.description
+            description: task.description,
           },
-          points: task.reward
+          points: task.reward,
         });
       }
 

@@ -45,7 +45,6 @@ exports.getUserPermissions = async (req, res) => {
 
 // Update user permissions by user ID
 exports.updateUserPermissions = async (req, res) => {
-  console.log(req.body)
   try {
     const userId = req.params.user_id;
     const updatedUserPermissions = {
