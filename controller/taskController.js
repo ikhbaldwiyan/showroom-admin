@@ -101,6 +101,7 @@ exports.updateTaskProgress = async (req, res) => {
     const { userId, progress, liveId } = req.body;
     const taskId = req.params.taskId;
     const user = await User.findById(userId);
+    const task = await Task.findOne({ _id: taskId });
 
     const taskProgress = user.progressData.taskProgress.find(
       (task) => task.taskId.toString() === taskId
@@ -108,9 +109,17 @@ exports.updateTaskProgress = async (req, res) => {
 
     if (taskProgress) {
       taskProgress.progress = progress;
-      taskProgress.liveIds = [...taskProgress.liveIds, liveId];
+      if (task.type === "watch" && liveId !== null && liveId !== undefined) {
+        if (!taskProgress.liveIds.includes(liveId)) {
+          taskProgress.liveIds.push(liveId);
+        }
+      }
     } else {
-      user.progressData.taskProgress.push({ taskId, progress });
+      const newTaskProgress = { taskId, progress, liveIds: [] };
+      if (task.type === "watch" && liveId !== null && liveId !== undefined) {
+        newTaskProgress.liveIds.push(liveId);
+      }
+      user.progressData.taskProgress.push(newTaskProgress);
     }
 
     await user.save();
