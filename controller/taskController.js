@@ -108,14 +108,24 @@ exports.updateTaskProgress = async (req, res) => {
     );
 
     if (taskProgress) {
-      taskProgress.progress = progress;
+      if (progress > task.criteria) {
+        taskProgress.progress = task.criteria;
+      } else {
+        taskProgress.progress = progress;
+      }
+
       if (task.type === "watch" && liveId !== null && liveId !== undefined) {
         if (!taskProgress.liveIds.includes(liveId)) {
           taskProgress.liveIds.push(liveId);
         }
       }
     } else {
-      const newTaskProgress = { taskId, progress, liveIds: [] };
+      const newTaskProgress = {
+        taskId,
+        progress: Math.min(progress, task.criteria),
+        liveIds: [],
+      };
+
       if (task.type === "watch" && liveId !== null && liveId !== undefined) {
         newTaskProgress.liveIds.push(liveId);
       }
