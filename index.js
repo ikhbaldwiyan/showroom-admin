@@ -14,6 +14,7 @@ const taskRoutes = require("./routes/taskRoutes");
 const activityRoutes = require("./routes/activityRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const authRoutes = require("./routes/authRoutes");
+const historyLiveRoutes = require("./routes/historyLiveRoutes");
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -37,6 +38,7 @@ mongoose
     app.use("/tasks", taskRoutes);
     app.use("/activity", activityRoutes);
     app.use("/admin-users", middleware, adminRoutes);
+    app.use("/history-live", historyLiveRoutes);
     app.use("/login", authRoutes);
 
     app.get("/", (req, res) => {
