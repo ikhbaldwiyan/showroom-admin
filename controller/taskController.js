@@ -133,7 +133,19 @@ exports.updateTaskProgress = async (req, res) => {
     }
 
     await user.save();
-    res.json({ message: "Task progress updated successfully" });
+
+    const updatedTaskProgress = {
+      taskId: taskProgress.taskId,
+      progress: taskProgress.progress,
+      status: taskProgress.status,
+      liveIds: taskProgress.liveIds || [], // Include liveIds if defined, or an empty array
+    };
+
+    res.json({
+      message: "Task progress updated successfully",
+      task: task,
+      taskProgress: updatedTaskProgress,
+    });
   } catch (error) {
     console.error("Error updating task progress:", error);
     res.status(500).json({ message: "Task progress failed to update" });
