@@ -13,7 +13,14 @@ exports.getTasks = async (req, res) => {
 exports.createTask = async (req, res) => {
   try {
     const { name, description, criteria, reward, type, exp } = req.body;
-    const newTask = new Task({ name, description, criteria, reward, type, exp });
+    const newTask = new Task({
+      name,
+      description,
+      criteria,
+      reward,
+      type,
+      exp,
+    });
     await newTask.save();
     res.json(newTask);
   } catch (error) {
@@ -63,7 +70,7 @@ exports.updateTask = async (req, res) => {
         criteria,
         reward,
         type,
-        exp
+        exp,
       },
       { new: true }
     );
@@ -192,14 +199,58 @@ exports.completeTask = async (req, res) => {
           }
         );
 
+        const levelThresholds = [
+          { level: 1, experienceRequired: 300 },
+          { level: 2, experienceRequired: 800 },
+          { level: 3, experienceRequired: 1600 },
+          { level: 4, experienceRequired: 2400 },
+          { level: 5, experienceRequired: 3600 },
+          { level: 6, experienceRequired: 4500 },
+          { level: 7, experienceRequired: 6000 },
+        ];
+
+        // Calculate the user's level based on experience points
+        const currentLevel = user.level || 1; // Default to level 1 if not set
+        let newLevel = currentLevel;
+        for (const levelInfo of levelThresholds) {
+          if (user.experience >= levelInfo.experienceRequired) {
+            newLevel = levelInfo.level;
+          } else {
+            break; // Break the loop as soon as the user doesn't meet the level requirement
+          }
+        }
+
+        if (newLevel > currentLevel && currentLevel !== newLevel) {
+          // User leveled up
+          await User.updateOne({ _id: userId }, { $set: { level: newLevel } });
+
+          return res.json({
+            message: `Congrats! Task completed. You earned ${
+              task.reward
+            } Points, and leveled up to ${
+              levelThresholds[newLevel - 1].level
+            }`,
+            task: {
+              name: task.name,
+              description: task.description,
+              points: task.reward,
+              experience: expEarned,
+            },
+            currentExp: user.experience,
+            newLevel: levelThresholds[newLevel - 1].level,
+          });
+        }
+
         return res.json({
-          message: `Congrats! Task completed. You earned ${task.reward} Points and ${expEarned} Exp`,
+          message: `Congrats! Task completed. You earned ${task.reward} Points`,
           task: {
             name: task.name,
             description: task.description,
+            points: task.reward,
+            experience: expEarned,
           },
-          points: task.reward,
-          experience: expEarned,
+          currentExp: user.experience,
+          currentLevel,
         });
       }
 

@@ -14,15 +14,15 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  experience: {
+    type: Number,
+    default: 0,
+  },
+  level: {
+    type: Number,
+    default: 1,
+  },
   progressData: {
-    level: {
-      type: Number,
-      default: 1,
-    },
-    experience: {
-      type: Number,
-      default: 0,
-    },
     taskProgress: [
       {
         taskId: {
