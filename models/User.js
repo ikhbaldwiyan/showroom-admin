@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
       type: Number,
       default: 1,
     },
+    experience: {
+      type: Number,
+      default: 0,
+    },
     taskProgress: [
       {
         taskId: {

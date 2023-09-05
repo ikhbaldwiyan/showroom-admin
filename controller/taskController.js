@@ -12,8 +12,8 @@ exports.getTasks = async (req, res) => {
 
 exports.createTask = async (req, res) => {
   try {
-    const { name, description, criteria, reward, type } = req.body;
-    const newTask = new Task({ name, description, criteria, reward, type });
+    const { name, description, criteria, reward, type, exp } = req.body;
+    const newTask = new Task({ name, description, criteria, reward, type, exp });
     await newTask.save();
     res.json(newTask);
   } catch (error) {
@@ -54,7 +54,7 @@ exports.detailTask = async (req, res) => {
 exports.updateTask = async (req, res) => {
   try {
     const taskId = req.params.taskId;
-    const { name, description, criteria, reward, type } = req.body;
+    const { name, description, criteria, reward, type, exp } = req.body;
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
       {
@@ -63,6 +63,7 @@ exports.updateTask = async (req, res) => {
         criteria,
         reward,
         type,
+        exp
       },
       { new: true }
     );
@@ -176,24 +177,29 @@ exports.completeTask = async (req, res) => {
         user.progressData.taskProgress[taskProgressIndex].progress >=
         task.criteria
       ) {
+        // Calculate experience points earned from the task
+        const expEarned = task.exp || 0; // Use the "exp" value from the task, default to 0 if not present
+
         await User.updateOne(
           { _id: userId },
           {
             $push: { "progressData.completedTasks": taskId },
-            $inc: { points: task.reward }, // Increment user's points by task reward
+            $inc: { points: task.reward, experience: expEarned }, // Increment user's points and experience
             $set: {
               [`progressData.taskProgress.${taskProgressIndex}.status`]:
                 "completed",
             }, // Update status to "completed"
           }
         );
+
         return res.json({
-          message: `Congrats task completed you get ${task.reward} Points `,
+          message: `Congrats! Task completed. You earned ${task.reward} Points and ${expEarned} Exp`,
           task: {
             name: task.name,
             description: task.description,
           },
           points: task.reward,
+          experience: expEarned,
         });
       }
 
@@ -211,6 +217,7 @@ exports.completeTask = async (req, res) => {
             user.progressData.taskProgress[taskProgressIndex].progress,
           criteria: task.criteria,
           points: task.reward,
+          experience: task.exp,
         });
       }
 
