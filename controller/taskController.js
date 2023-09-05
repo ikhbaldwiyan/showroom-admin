@@ -116,8 +116,9 @@ exports.updateTaskProgress = async (req, res) => {
     );
 
     if (taskProgress) {
-      if (progress > task.criteria) {
+      if (progress >= task.criteria) {
         taskProgress.progress = task.criteria;
+        taskProgress.status = "completed";
       } else {
         taskProgress.progress = progress;
       }
@@ -194,7 +195,7 @@ exports.completeTask = async (req, res) => {
             $inc: { points: task.reward, experience: expEarned }, // Increment user's points and experience
             $set: {
               [`progressData.taskProgress.${taskProgressIndex}.status`]:
-                "completed",
+                "claimed",
             }, // Update status to "completed"
           }
         );
@@ -227,14 +228,13 @@ exports.completeTask = async (req, res) => {
           return res.json({
             message: `Congrats! Task completed. You earned ${
               task.reward
-            } Points, and leveled up to ${
-              levelThresholds[newLevel - 1].level
-            }`,
+            } Points, and leveled up to ${levelThresholds[newLevel - 1].level}`,
             task: {
               name: task.name,
               description: task.description,
               points: task.reward,
               experience: expEarned,
+              status: `user.progressData.taskProgress.${taskProgressIndex}.status`
             },
             currentExp: user.experience,
             newLevel: levelThresholds[newLevel - 1].level,
@@ -269,6 +269,7 @@ exports.completeTask = async (req, res) => {
           criteria: task.criteria,
           points: task.reward,
           experience: task.exp,
+          status:  user.progressData.taskProgress[taskProgressIndex].status,
         });
       }
 
