@@ -16,6 +16,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const authRoutes = require("./routes/authRoutes");
 const historyLiveRoutes = require("./routes/historyLiveRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const leaderboardRoutes = require("./routes/leaderboardRoutes");
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -42,6 +43,7 @@ mongoose
     app.use("/history-live", historyLiveRoutes);
     app.use("/login", authRoutes);
     app.use("/dashboard", dashboardRoutes);
+    app.use("/leaderboard", leaderboardRoutes);
 
     app.get("/", (req, res) => {
       res.send({
