@@ -234,7 +234,7 @@ exports.completeTask = async (req, res) => {
               description: task.description,
               points: task.reward,
               experience: expEarned,
-              status: `user.progressData.taskProgress.${taskProgressIndex}.status`
+              status: user.progressData.taskProgress[taskProgressIndex].status,
             },
             currentExp: user.experience,
             newLevel: levelThresholds[newLevel - 1].level,
@@ -269,7 +269,7 @@ exports.completeTask = async (req, res) => {
           criteria: task.criteria,
           points: task.reward,
           experience: task.exp,
-          status:  user.progressData.taskProgress[taskProgressIndex].status,
+          status: user.progressData.taskProgress[taskProgressIndex].status,
         });
       }
 
