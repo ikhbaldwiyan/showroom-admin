@@ -4,9 +4,10 @@ const middleware = require("../utils/jwtMiddleware");
 const router = express.Router();
 
 router.get('/', scheduleController.getAllSchedules);
-router.post('/',middleware, scheduleController.createSchedule);
+router.get('/today', scheduleController.getTodayTheaterSchedule);
+router.post('/', middleware, scheduleController.createSchedule);
 router.get('/:id', scheduleController.getScheduleById);
 router.put('/:id', middleware, scheduleController.updateSchedule);
-router.delete('/:id',middleware, scheduleController.deleteSchedule);
+router.delete('/:id', middleware, scheduleController.deleteSchedule);
 
 module.exports = router;

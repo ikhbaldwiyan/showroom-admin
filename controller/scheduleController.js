@@ -1,3 +1,4 @@
+const axios = require("axios");
 const Schedule = require("../models/Schedule");
 
 // GET all theater schedules
@@ -5,7 +6,7 @@ exports.getAllSchedules = async (req, res) => {
   try {
     const isOnWeekSchedule = req.query.isOnWeekSchedule;
     const filter = isOnWeekSchedule ? { isOnWeekSchedule } : {}; 
-    
+
     const schedules = await Schedule.find(filter)
       .populate('memberList')
       .populate('setlist');
@@ -123,7 +124,7 @@ exports.updateSchedule = async (req, res) => {
       },
       { new: true }
     );
-    
+
     if (!updatedSchedule) return res.status(404).send("Schedule not found.");
     res.json(updatedSchedule);
   } catch (error) {
@@ -142,3 +143,28 @@ exports.deleteSchedule = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+exports.getTodayTheaterSchedule = async (req, res) => {
+  try {
+    const response = await axios.get(
+      "https://showroom-admin.ikhbaldwiyan.repl.co/schedules?isOnWeekSchedule=true"
+    );
+    const currentDate = new Date(); // Get the current date
+
+    const todaySchedule = response.data.find((schedule) => {
+      const showDate = new Date(schedule.showDate);
+      return (
+        showDate.getDate() === currentDate.getDate() &&
+        showDate.getMonth() === currentDate.getMonth() &&
+        showDate.getFullYear() === currentDate.getFullYear()
+      );
+    });
+
+    res.json(
+      todaySchedule
+    )  // Return null if no schedule matches today's date
+  } catch (error) {
+    console.error("Error fetching theater schedules:", error);
+    return null;
+  }
+}
