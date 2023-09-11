@@ -282,3 +282,62 @@ exports.completeTask = async (req, res) => {
     res.status(500).json({ message: "An error occurred" });
   }
 };
+
+const getRequiredPoints = (featureName) => {
+  switch (featureName) {
+    case "can_3_room":
+      return 2000;
+    case "can_4_room":
+      return 2500;
+    case "can_farming_page":
+      return 5000;
+    case "can_farming_detail":
+      return 6000;
+    case "can_farming_multi":
+      return 7000;
+    default:
+      return 0; // Return 0 points for unknown features or handle accordingly
+  }
+};
+
+exports.redeemFeature = async (req, res) => {
+  const { featureName } = req.params;
+  const user_id = req.body.user_id; 
+  const unlockedFeature = featureName
+  .replace("can_", "")
+  .replace("_", " ")
+
+  try {
+    const user = await User.findOne({ user_id }); 
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const requiredPoints = getRequiredPoints(featureName);
+
+    if (user[featureName] === true) {
+      return res.json({
+        message: `Feature ${unlockedFeature} already unlocked.`,
+      });
+    }
+
+    if (user.points >= requiredPoints) {
+      user.points -= requiredPoints;
+      user[featureName] = true;
+
+      await user.save();
+
+      return res.json({
+        message: `Feature ${unlockedFeature} unlocked successfully.`,
+        point: `your points decrased ${requiredPoints}`
+      });
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Not enough points to unlock the feature." });
+    }
+  } catch (error) {
+    console.error("Error unlocking feature:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

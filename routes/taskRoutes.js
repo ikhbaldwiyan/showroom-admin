@@ -11,5 +11,6 @@ router.delete('/:taskId', taskController.deleteTask);
 router.put('/toggle/:taskId', taskController.toggleTaskStatus);
 router.put('/update-progress/:taskId', taskController.updateTaskProgress);
 router.put('/complete-task/:taskId', taskController.completeTask);
+router.post('/redeem/:featureName', taskController.redeemFeature);
 
 module.exports = router;
