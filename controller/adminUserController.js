@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const AdminUser = require("../models/AdminUser"); 
+const AdminUser = require("../models/AdminUser");
 
 exports.createAdminUser = async (req, res) => {
   try {
@@ -42,16 +42,45 @@ exports.getAdminUserById = async (req, res) => {
 
 exports.updateAdminUser = async (req, res) => {
   try {
-    const adminUser = await AdminUser.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const { name, username, new_password, old_password } = req.body;
+    const adminUser = await AdminUser.findById(req.params.id);
+
     if (!adminUser) {
       return res.status(404).json({ message: "Admin user not found." });
     }
+
+    // If the old password is provided, verify it
+    if (old_password) {
+      const isMatch = await bcrypt.compare(old_password, adminUser.password);
+
+      if (!isMatch) {
+        return res.status(400).json({ message: "old_password is incorrect." });
+      }
+
+      // Hash and update the new password
+      const hashedPassword = await bcrypt.hash(new_password, 10);
+      adminUser.password = hashedPassword;
+    }
+
+    if (new_password && !old_password) {
+      return res.status(400).json({ message: "old_password is required." });
+    }
+
+    // Update name and username
+    if (name) {
+      adminUser.name = name;
+    }
+
+    if (username) {
+      adminUser.username = username;
+    }
+
+    // Save the updated admin user
+    await adminUser.save();
+
     res.status(200).json(adminUser);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Failed to update admin user." });
   }
 };
