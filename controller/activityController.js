@@ -13,15 +13,16 @@ exports.createActivity = async (req, res) => {
       return res.status(404).json({ error: 'User  not found' });
     }
 
-    // Check if a similar activity already exists
-    const existingActivity = await Activity.findOne({
-      log_name,
-      description,
-      user: user_id,
-    });
+    // Check if a similar activity already exists for "watch" or "comment" logs
+    if (log_name === 'Watch' || log_name === 'Comment') {
+      const existingActivity = await Activity.findOne({
+        log_name,
+        user: user_id,
+      });
 
-    if (existingActivity) {
-      return res.status(409).json({ error: 'Duplicate activity log' });
+      if (existingActivity) {
+        return res.status(409).json({ error: 'Duplicate activity log' });
+      }
     }
 
     const newActivity = new Activity({
