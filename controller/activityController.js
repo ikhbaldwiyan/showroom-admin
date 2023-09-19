@@ -4,20 +4,22 @@ const User = require("../models/User"); // Assuming you have a User model
 // Controller to create a new activity log
 exports.createActivity = async (req, res) => {
   try {
-    const { log_name, description, user_id } = req.body;
+    const { log_name, description, user_id, live_id } = req.body;
 
-    // Check if user_id  exist
+    // Check if user_id exists
     const user = await User.findById(user_id);
 
     if (!user) {
-      return res.status(404).json({ error: 'User  not found' });
+      return res.status(404).json({ error: 'User not found' });
     }
 
     // Check if a similar activity already exists for "watch" or "comment" logs
     if (log_name === 'Watch' || log_name === 'Comment') {
       const existingActivity = await Activity.findOne({
         log_name,
+        description,
         user: user_id,
+        live_id,
       });
 
       if (existingActivity) {
@@ -29,6 +31,7 @@ exports.createActivity = async (req, res) => {
       log_name,
       description,
       user: user_id,
+      live_id,
     });
 
     await newActivity.save();

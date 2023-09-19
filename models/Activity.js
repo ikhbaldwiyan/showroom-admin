@@ -19,6 +19,10 @@ const activitySchema = new mongoose.Schema({
     ref: 'Task',
     required: false,
   },
+  live_id: {
+    type: String,
+    required: false,
+  },
   timestamp: {
     type: Date,
     default: Date.now,
