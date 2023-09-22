@@ -45,9 +45,21 @@ exports.createActivity = async (req, res) => {
 // Controller to get all activity logs
 exports.getAllActivities = async (req, res) => {
   try {
-    const activities = await Activity.find()
-      .populate("user").populate("task")
+    // Extract the log_name from the request query
+    const { type } = req.query;
+
+    // Create a filter object to conditionally filter by log_name
+    const filter = {};
+    if (type) {
+      filter.log_name = type;
+    }
+
+    // Query the activities based on the optional log_name filter
+    const activities = await Activity.find(filter)
+      .populate("user")
+      .populate("task")
       .sort("-timestamp");
+
     res.json(activities);
   } catch (error) {
     res.status(500).json({ error: "An error occurred" });
