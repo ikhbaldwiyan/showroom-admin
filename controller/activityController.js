@@ -4,17 +4,18 @@ const User = require("../models/User"); // Assuming you have a User model
 // Controller to create a new activity log
 exports.createActivity = async (req, res) => {
   try {
-    const { log_name, description, user_id, live_id } = req.body;
+    const { log_name, description, user_id, live_id, device } = req.body;
 
     // Check if user_id exists
     const user = await User.findById(user_id);
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
+    
+    const checkType = ["Watch", "Comment", "Premium Live"];
 
-    // Check if a similar activity already exists for "watch" or "comment" logs
-    if (log_name === 'Watch' || log_name === 'Comment') {
+    if (checkType.includes(log_name)) {
       const existingActivity = await Activity.findOne({
         log_name,
         description,
@@ -23,7 +24,7 @@ exports.createActivity = async (req, res) => {
       });
 
       if (existingActivity) {
-        return res.status(409).json({ error: 'Duplicate activity log' });
+        return res.status(409).json({ error: "Duplicate activity log" });
       }
     }
 
@@ -32,13 +33,14 @@ exports.createActivity = async (req, res) => {
       description,
       user: user_id,
       live_id,
+      device,
     });
 
     await newActivity.save();
     res.status(201).json(newActivity);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: 'An error occurred' });
+    res.status(500).json({ error: "An error occurred" });
   }
 };
 
@@ -70,7 +72,9 @@ exports.getActivityById = async (req, res) => {
   try {
     const activityId = req.params.id;
 
-    const activity = await Activity.findById(activityId).populate("user").populate("task");
+    const activity = await Activity.findById(activityId)
+      .populate("user")
+      .populate("task");
     if (!activity) {
       return res.status(404).json({ error: "Activity log not found" });
     }
@@ -88,12 +92,12 @@ exports.deleteActivityById = async (req, res) => {
     // Check if the activity log exists
     const activity = await Activity.findByIdAndRemove(activityId);
     if (!activity) {
-      return res.status(404).json({ error: 'Activity log not found' });
+      return res.status(404).json({ error: "Activity log not found" });
     }
 
-    res.json({ message: 'Activity log deleted successfully' });
+    res.json({ message: "Activity log deleted successfully" });
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ error: 'An error occurred' });
+    console.log(error);
+    res.status(500).json({ error: "An error occurred" });
   }
 };

@@ -23,6 +23,10 @@ const activitySchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  device: {
+    type: String,
+    required: false,
+  },
   timestamp: {
     type: Date,
     default: Date.now,
