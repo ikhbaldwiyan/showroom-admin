@@ -1,7 +1,6 @@
 const { default: axios } = require("axios");
 const { google } = require("googleapis");
 
-
 const getToken = async () => {
   const jwtClient = new google.auth.JWT(
     process.env.ANALYTICS_EMAIL,
@@ -18,12 +17,12 @@ const getToken = async () => {
 
 exports.getAnalyticsData = async (req, res) => {
   const {
-    start_date = 'yesterday',
-    end_date = 'today',
-    dimensions = 'ga%3ApagePath',
-    metrics = 'ga:pageviews, ga:users',
-    sort = '-ga:pageviews',
-    max_results = 20
+    start_date = "yesterday",
+    end_date = "today",
+    dimensions = "ga%3ApagePath",
+    metrics = "ga:pageviews, ga:users",
+    sort = "-ga:pageviews",
+    max_results = 20,
   } = req.body;
 
   try {
@@ -45,3 +44,16 @@ exports.getAnalyticsData = async (req, res) => {
   }
 };
 
+exports.getSingleToken = async (req, res) => {
+  const jwtClient = new google.auth.JWT(
+    process.env.ANALYTICS_EMAIL,
+    undefined,
+    process.env.ANALYTICS_KEY,
+    ["https://www.googleapis.com/auth/analytics.readonly"],
+    undefined
+  );
+
+  const token = await jwtClient.authorize();
+
+  res.json(token);
+};
