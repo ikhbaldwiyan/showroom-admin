@@ -286,9 +286,9 @@ exports.completeTask = async (req, res) => {
 const getRequiredPoints = (featureName) => {
   switch (featureName) {
     case "can_3_room":
-      return 2000;
-    case "can_4_room":
       return 2500;
+    case "can_4_room":
+      return 5000;
     case "can_farming_page":
       return 5000;
     case "can_farming_detail":
