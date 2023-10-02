@@ -5,5 +5,6 @@ const analyticsController = require('../controller/analyticsController');
 
 router.post('/', analyticsController.getAnalyticsData);
 router.get('/token', analyticsController.getSingleToken);
+router.post('/real-time', analyticsController.getRealTimeData);
 
 module.exports = router;

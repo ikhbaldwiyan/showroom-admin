@@ -57,3 +57,37 @@ exports.getSingleToken = async (req, res) => {
 
   res.json(token);
 };
+
+exports.getRealTimeData = async (req, res) => {
+  try {
+    const token = await getToken();
+    const {
+      metrics = "rt:activeUsers",
+      dimensions = "ga:pagePath,ga:source,ga:deviceCategory",
+    } = req.body;
+
+    const url = `https://www.googleapis.com/analytics/v3/data/realtime?ids=ga:265603782&metrics=${metrics}&dimensions=${dimensions}`;
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token.access_token}`,
+    };
+
+    const response = await axios.get(url, { headers });
+    const data = response.data;
+
+    res.json({
+      activeUsers: data.totalsForAllResults["rt:activeUsers"],
+      rows: data?.rows?.map((item) => ({
+        page: item[0],
+        source: item[1],
+        users: item[3],
+        device: item[2],
+      })),
+      orginalData: data
+    });
+  } catch (error) {
+    console.error("Error get analytics data:", error);
+    res.status(500).json({ error: "Error get analytics data" });
+  }
+};
