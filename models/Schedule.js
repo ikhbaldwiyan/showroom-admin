@@ -76,11 +76,12 @@ const scheduleSchema = new mongoose.Schema(
     },
     ticketShowroom: {
       type: String,
-      required: true,
+      required: false,
     },
     ticketTheater: {
       type: String,
-      required: true,
+      required: false,
+      default: "https://jkt48.com/theater/schedule"
     },
     memberList: [{
       type: mongoose.Schema.Types.ObjectId,
@@ -90,6 +91,10 @@ const scheduleSchema = new mongoose.Schema(
       type: String, 
       required: false,
     },
+    bulkMemberInput: [{
+      type: memberSchema,
+      required: false,
+    }],
   },
   {
     collection: "theater-schedules",

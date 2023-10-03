@@ -1,5 +1,6 @@
 const axios = require("axios");
 const Schedule = require("../models/Schedule");
+const Member = require("../models/Member");
 
 // GET all theater schedules
 exports.getAllSchedules = async (req, res) => {
@@ -102,9 +103,18 @@ exports.updateSchedule = async (req, res) => {
       ticketShowroom,
       ticketTheater,
       webImage,
+      bulkMemberInput,
     } = req.body;
 
-    const memberIds = memberList?.map((member) => member);
+    // Find member IDs based on stage names
+    const memberIds = await Promise.all(bulkMemberInput?.map(async (stage_name) => {
+      const member = await Member.findOne({ stage_name });
+      return member ? member._id : null;
+    }));
+
+    // Filter out null values (stage names without corresponding members)
+    const filteredMemberIds = memberIds.filter((id) => id !== null);
+
     const updatedSchedule = await Schedule.findByIdAndUpdate(
       req.params.id,
       {
@@ -114,7 +124,7 @@ exports.updateSchedule = async (req, res) => {
         setlist,
         birthdayMember,
         isOnWeekSchedule,
-        memberList: memberIds,
+        memberList: bulkMemberInput.length > 0 ? filteredMemberIds : memberList,
         isComingSoon,
         isGraduationShow,
         graduateMember,
@@ -128,7 +138,7 @@ exports.updateSchedule = async (req, res) => {
     if (!updatedSchedule) return res.status(404).send("Schedule not found.");
     res.json(updatedSchedule);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).send("Internal Server Error");
   }
 };
