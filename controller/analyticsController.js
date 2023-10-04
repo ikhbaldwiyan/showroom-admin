@@ -40,7 +40,7 @@ exports.getAnalyticsData = async (req, res) => {
     res.json(response.data);
   } catch (error) {
     console.error("Error get analytics data:", error);
-    res.status(500).json({ error: "Error get analytics data" });
+    res.status(500).json({ error:  error.response.data.error });
   }
 };
 
@@ -63,7 +63,7 @@ exports.getRealTimeData = async (req, res) => {
     const token = await getToken();
     const {
       metrics = "rt:activeUsers",
-      dimensions = "ga:pagePath,ga:source,ga:deviceCategory",
+      dimensions = "ga:pagePath,ga:source,ga:deviceCategory,ga:city",
     } = req.body;
 
     const url = `https://www.googleapis.com/analytics/v3/data/realtime?ids=ga:265603782&metrics=${metrics}&dimensions=${dimensions}`;
@@ -81,8 +81,9 @@ exports.getRealTimeData = async (req, res) => {
       rows: data?.rows?.map((item) => ({
         page: item[0],
         source: item[1],
-        users: item[3],
+        users: item[4],
         device: item[2],
+        city: item[3]
       })),
       orginalData: data
     });
