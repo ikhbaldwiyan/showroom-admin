@@ -1,5 +1,7 @@
 const { default: axios } = require("axios");
 const { google } = require("googleapis");
+const ANALYTICS_API =
+  "https://analyticsdata.googleapis.com/v1beta/properties/373769110:runRealtimeReport";
 
 const getToken = async () => {
   const jwtClient = new google.auth.JWT(
@@ -40,7 +42,7 @@ exports.getAnalyticsData = async (req, res) => {
     res.json(response.data);
   } catch (error) {
     console.error("Error get analytics data:", error);
-    res.status(500).json({ error:  error.response.data.error });
+    res.status(500).json({ error: error?.response });
   }
 };
 
@@ -61,34 +63,77 @@ exports.getSingleToken = async (req, res) => {
 exports.getRealTimeData = async (req, res) => {
   try {
     const token = await getToken();
-    const {
-      metrics = "rt:activeUsers",
-      dimensions = "ga:pagePath,ga:source,ga:deviceCategory,ga:city",
-    } = req.body;
-
-    const url = `https://www.googleapis.com/analytics/v3/data/realtime?ids=ga:265603782&metrics=${metrics}&dimensions=${dimensions}`;
+    const { metrics = "unifiedScreenName", dimensions = "activeUsers" } =
+      req.body;
 
     const headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token.access_token}`,
     };
 
-    const response = await axios.get(url, { headers });
+    const response = await axios.post(
+      ANALYTICS_API,
+      {
+        dimensions: [{ name: metrics }],
+        metrics: [{ name: dimensions }],
+      },
+      { headers }
+    );
     const data = response.data;
 
     res.json({
-      activeUsers: data.totalsForAllResults["rt:activeUsers"],
       rows: data?.rows?.map((item) => ({
-        page: item[0],
-        source: item[1],
-        users: item[4],
-        device: item[2],
-        city: item[3]
+        name: item.dimensionValues[0].value,
+        value: item.metricValues[0].value,
       })),
-      orginalData: data
+      orginalData: data,
     });
   } catch (error) {
     console.error("Error get analytics data:", error);
-    res.status(500).json({ error: "Error get analytics data" });
+    res.status(500).json({ error: error?.response?.data?.error });
+  }
+};
+
+exports.getRealTimeOnlineUsers = async (req, res) => {
+  try {
+    const token = await getToken();
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token.access_token}`,
+    };
+
+    //real time users 30 minutes ago
+    const users = await axios.post(
+      ANALYTICS_API,
+      {
+        metrics: [
+          {
+            name: "activeUsers",
+          },
+        ],
+        minuteRanges: [
+          {
+            name: "0-5 minutes ago",
+            startMinutesAgo: 5,
+          },
+          {
+            name: "30 minutes ago",
+            startMinutesAgo: 29,
+          },
+        ],
+      },
+      { headers }
+    );
+
+    res.json({
+      activeUsers: users?.data?.rows?.map((item) => ({
+        name: item.dimensionValues[0].value,
+        value: item.metricValues[0].value,
+      })),
+    });
+  } catch (error) {
+    console.error("Error get analytics data:", error);
+    res.status(500).json({ error: error?.response?.data });
   }
 };
