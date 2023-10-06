@@ -1,7 +1,9 @@
 const { default: axios } = require("axios");
 const { google } = require("googleapis");
-const ANALYTICS_API =
+const REAL_TIME_API =
   "https://analyticsdata.googleapis.com/v1beta/properties/373769110:runRealtimeReport";
+const ANALYTICS_API =
+  "https://analyticsdata.googleapis.com/v1beta/properties/373769110:runReport";
 
 const getToken = async () => {
   const jwtClient = new google.auth.JWT(
@@ -21,28 +23,66 @@ exports.getAnalyticsData = async (req, res) => {
   const {
     start_date = "yesterday",
     end_date = "today",
-    dimensions = "ga%3ApagePath",
-    metrics = "ga:pageviews, ga:users",
-    sort = "-ga:pageviews",
-    max_results = 20,
+    dimensions = "pagePath",
+    metrics = "activeUsers",
   } = req.body;
 
   try {
     const token = await getToken();
-
-    const url = `https://www.googleapis.com/analytics/v3/data/ga?ids=ga:265603782&dimensions=${dimensions}&metrics=${metrics}&sort=${sort}&start-date=${start_date}&end-date=${end_date}&max-results=${max_results}`;
 
     const headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token.access_token}`,
     };
 
-    const response = await axios.get(url, { headers });
+    const body = {
+      dateRanges: [
+        {
+          startDate: start_date,
+          endDate: end_date,
+        },
+      ],
+      dimensions: [
+        {
+          name: dimensions,
+        },
+      ],
+      metrics: [
+        {
+          name: metrics,
+        },
+        {
+          name: "screenPageViews",
+        },
+        {
+          name: "newUsers",
+        },
+      ],
+    }
 
-    res.json(response.data);
+    const response = await axios.post(
+      ANALYTICS_API,
+      body,
+      { headers }
+    );
+
+    const data = response.data
+
+    res.json({
+      filter: data.dimensionHeaders[0].name,
+      data: data?.rows?.map((item) => ({
+        dimensions: item.dimensionValues[0].value,
+        metrics: {
+          [data?.metricHeaders[0]?.name]: item.metricValues[0].value,
+          [data?.metricHeaders[1]?.name]: item.metricValues[1].value,
+          [data?.metricHeaders[2]?.name]: item.metricValues[2].value,
+        },
+      })),
+      orginalData: data
+    });
   } catch (error) {
     console.error("Error get analytics data:", error);
-    res.status(500).json({ error: error?.response });
+    res.status(500).json({ error: error?.response?.data?.error });
   }
 };
 
@@ -72,7 +112,7 @@ exports.getRealTimeData = async (req, res) => {
     };
 
     const response = await axios.post(
-      ANALYTICS_API,
+      REAL_TIME_API,
       {
         dimensions: [{ name: metrics }],
         metrics: [{ name: dimensions }],
@@ -105,7 +145,7 @@ exports.getRealTimeOnlineUsers = async (req, res) => {
 
     //real time users 30 minutes ago
     const users = await axios.post(
-      ANALYTICS_API,
+      REAL_TIME_API,
       {
         metrics: [
           {
