@@ -1,5 +1,7 @@
 const { default: axios } = require("axios");
 const { google } = require("googleapis");
+const moment = require("moment");
+
 const REAL_TIME_API =
   "https://analyticsdata.googleapis.com/v1beta/properties/373769110:runRealtimeReport";
 const ANALYTICS_API =
@@ -35,6 +37,26 @@ exports.getAnalyticsData = async (req, res) => {
       Authorization: `Bearer ${token.access_token}`,
     };
 
+    const isDate = dimensions === "date";
+
+    let customMetrics = isDate
+      ? [
+          {
+            name: metrics,
+          },
+        ]
+      : [
+          {
+            name: metrics,
+          },
+          {
+            name: "screenPageViews",
+          },
+          {
+            name: "newUsers",
+          },
+        ];
+
     const body = {
       dateRanges: [
         {
@@ -47,38 +69,34 @@ exports.getAnalyticsData = async (req, res) => {
           name: dimensions,
         },
       ],
-      metrics: [
-        {
-          name: metrics,
-        },
-        {
-          name: "screenPageViews",
-        },
-        {
-          name: "newUsers",
-        },
-      ],
-    }
+      metrics: customMetrics,
+    };
 
-    const response = await axios.post(
-      ANALYTICS_API,
-      body,
-      { headers }
-    );
-
-    const data = response.data
+    const response = await axios.post(ANALYTICS_API, body, { headers });
+    const data = response.data;
 
     res.json({
       filter: data.dimensionHeaders[0].name,
-      data: data?.rows?.map((item) => ({
-        dimensions: item.dimensionValues[0].value,
-        metrics: {
-          [data?.metricHeaders[0]?.name]: item.metricValues[0].value,
-          [data?.metricHeaders[1]?.name]: item.metricValues[1].value,
-          [data?.metricHeaders[2]?.name]: item.metricValues[2].value,
-        },
-      })),
-      orginalData: data
+      data: data?.rows?.map((item) =>
+        isDate
+          ? {
+              dimensions: moment(item.dimensionValues[0].value).format(
+                "dddd, DD MMM"
+              ),
+              metrics: {
+                [data?.metricHeaders[0]?.name]: item.metricValues[0].value,
+              },
+            }
+          : {
+              dimensions: item.dimensionValues[0].value,
+              metrics: {
+                [data?.metricHeaders[0]?.name]: item.metricValues[0].value,
+                [data?.metricHeaders[1]?.name]: item.metricValues[1].value,
+                [data?.metricHeaders[2]?.name]: item.metricValues[2].value,
+              },
+            }
+      ),
+      orginalData: data,
     });
   } catch (error) {
     console.error("Error get analytics data:", error);
