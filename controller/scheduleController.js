@@ -33,7 +33,7 @@ exports.getScheduleById = async (req, res) => {
         path: "user_id",
         select: "name user_id",
       })
-      .select("discord_name status");
+      .select("discord_name image status");
 
     if (!schedule) return res.status(404).send("Schedule not found.");
     res.json({ ...schedule._doc, sharingUsers: sharingLiveUser });
