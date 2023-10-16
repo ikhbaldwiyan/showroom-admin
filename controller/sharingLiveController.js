@@ -29,6 +29,7 @@ exports.createSharingLive = async (req, res) => {
       schedule_id,
       discord_name,
       status,
+      image
     });
     const registeredUser = await SharingLive.findOne({
       user_id,
@@ -79,12 +80,12 @@ exports.getSharingLiveDetail = async (req, res) => {
 
 exports.updateSharingLive = async (req, res) => {
   const sharingLiveId = req.params.id;
-  const { schedule_id, discord_name, status, user_id } = req.body;
+  const { schedule_id, discord_name, status, user_id, image } = req.body;
 
   try {
     const sharingLive = await SharingLive.findByIdAndUpdate(
       sharingLiveId,
-      { schedule_id, discord_name, status, user_id },
+      { schedule_id, discord_name, status, user_id, image },
       { new: true }
     )
       .populate({
