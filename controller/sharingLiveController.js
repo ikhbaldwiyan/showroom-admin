@@ -22,14 +22,14 @@ exports.getAllSharingLive = async (req, res) => {
 };
 
 exports.createSharingLive = async (req, res) => {
-  const { schedule_id, discord_name, status, user_id } = req.body;
+  const { schedule_id, discord_name, status, user_id, image } = req.body;
   try {
     const newsharingLive = new SharingLive({
       user_id,
       schedule_id,
       discord_name,
       status,
-      image
+      image,
     });
     const registeredUser = await SharingLive.findOne({
       user_id,
