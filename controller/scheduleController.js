@@ -1,16 +1,17 @@
 const axios = require("axios");
 const Schedule = require("../models/Schedule");
 const Member = require("../models/Member");
+const SharingLive = require("../models/SharingLive");
 
 // GET all theater schedules
 exports.getAllSchedules = async (req, res) => {
   try {
     const isOnWeekSchedule = req.query.isOnWeekSchedule;
-    const filter = isOnWeekSchedule ? { isOnWeekSchedule } : {}; 
+    const filter = isOnWeekSchedule ? { isOnWeekSchedule } : {};
 
     const schedules = await Schedule.find(filter)
-      .populate('memberList')
-      .populate('setlist');
+      .populate("memberList")
+      .populate("setlist");
 
     res.json(schedules);
   } catch (error) {
@@ -21,9 +22,21 @@ exports.getAllSchedules = async (req, res) => {
 // GET a specific theater schedule
 exports.getScheduleById = async (req, res) => {
   try {
-    const schedule = await Schedule.findById(req.params.id).populate("memberList").populate('setlist');
+    const scheduleId = req.params.id;
+    const schedule = await Schedule.findById(scheduleId)
+      .populate("memberList")
+      .populate("setlist");
+    const sharingLiveUser = await SharingLive.find({
+      schedule_id: scheduleId,
+    })
+      .populate({
+        path: "user_id",
+        select: "name user_id",
+      })
+      .select("discord_name status");
+
     if (!schedule) return res.status(404).send("Schedule not found.");
-    res.json(schedule);
+    res.json({ ...schedule._doc, sharingUsers: sharingLiveUser });
   } catch (error) {
     res.status(500).send("Internal Server Error");
   }
@@ -69,7 +82,7 @@ exports.createSchedule = async (req, res) => {
 
     res.json(createdSchedule);
   } catch (error) {
-    if (error.name === 'ValidationError') {
+    if (error.name === "ValidationError") {
       // Mongoose validation error
       const errors = {};
       for (const field in error.errors) {
@@ -80,7 +93,7 @@ exports.createSchedule = async (req, res) => {
       // Other unexpected errors
       console.log(error);
       res.status(500).send({
-        message: 'Internal server error.',
+        message: "Internal server error.",
       });
     }
   }
@@ -107,10 +120,12 @@ exports.updateSchedule = async (req, res) => {
     } = req.body;
 
     // Find member IDs based on stage names
-    const memberIds = await Promise.all(bulkMemberInput?.map(async (stage_name) => {
-      const member = await Member.findOne({ stage_name });
-      return member ? member._id : null;
-    }));
+    const memberIds = await Promise.all(
+      bulkMemberInput?.map(async (stage_name) => {
+        const member = await Member.findOne({ stage_name });
+        return member ? member._id : null;
+      })
+    );
 
     // Filter out null values (stage names without corresponding members)
     const filteredMemberIds = memberIds.filter((id) => id !== null);
@@ -170,11 +185,9 @@ exports.getTodayTheaterSchedule = async (req, res) => {
       );
     });
 
-    res.json(
-      todaySchedule
-    )  // Return null if no schedule matches today's date
+    res.json(todaySchedule); // Return null if no schedule matches today's date
   } catch (error) {
     console.error("Error fetching theater schedules:", error);
     return null;
   }
-}
+};
