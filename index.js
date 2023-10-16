@@ -18,6 +18,7 @@ const historyLiveRoutes = require("./routes/historyLiveRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const leaderboardRoutes = require("./routes/leaderboardRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
+const sharingLiveRoutes = require("./routes/sharingLiveRoutes");
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -46,6 +47,7 @@ mongoose
     app.use("/dashboard", dashboardRoutes);
     app.use("/leaderboard", leaderboardRoutes);
     app.use("/analytics", analyticsRoutes);
+    app.use("/sharing-live", sharingLiveRoutes);
 
     app.get("/", (req, res) => {
       res.send({
