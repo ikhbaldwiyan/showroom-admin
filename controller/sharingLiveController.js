@@ -22,7 +22,8 @@ exports.getAllSharingLive = async (req, res) => {
 };
 
 exports.createSharingLive = async (req, res) => {
-  const { schedule_id, discord_name, status, user_id, image } = req.body;
+  const { schedule_id, discord_name, status, user_id, image, phone_number } =
+    req.body;
   try {
     const newsharingLive = new SharingLive({
       user_id,
@@ -30,6 +31,7 @@ exports.createSharingLive = async (req, res) => {
       discord_name,
       status,
       image,
+      phone_number,
     });
     const registeredUser = await SharingLive.findOne({
       user_id,
@@ -80,12 +82,12 @@ exports.getSharingLiveDetail = async (req, res) => {
 
 exports.updateSharingLive = async (req, res) => {
   const sharingLiveId = req.params.id;
-  const { schedule_id, discord_name, status, user_id, image } = req.body;
+  const { schedule_id, discord_name, status, user_id, image, phone_number } = req.body;
 
   try {
     const sharingLive = await SharingLive.findByIdAndUpdate(
       sharingLiveId,
-      { schedule_id, discord_name, status, user_id, image },
+      { schedule_id, discord_name, status, user_id, image, phone_number },
       { new: true }
     )
       .populate({
@@ -125,6 +127,22 @@ exports.deleteSharingLive = async (req, res) => {
     }
 
     res.json({ message: "Sharing live users deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.getSharingLiveUsers = async (req, res) => {
+  try {
+    const scheduleId = req.params.id;
+    const sharingLive = await SharingLive.find({ schedule_id: scheduleId });
+
+    if (!sharingLive) {
+      return res.status(404).json({ error: "Sharing live event not found" });
+    }
+
+    res.json(sharingLive);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
