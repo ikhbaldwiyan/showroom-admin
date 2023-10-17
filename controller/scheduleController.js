@@ -13,7 +13,19 @@ exports.getAllSchedules = async (req, res) => {
       .populate("memberList")
       .populate("setlist");
 
-    res.json(schedules);
+    // Fetch and attach sharing users to each schedule
+    const schedulesWithSharingUsers = await Promise.all(
+      schedules.map(async (schedule) => {
+        const sharingUsers = await SharingLive.find({ schedule_id: schedule._id })
+          .populate("user_id", "name user_id"); // Populate user details if needed
+        return {
+          ...schedule._doc,
+          sharingUsers: sharingUsers.map((user) => user.user_id),
+        };
+      })
+    );
+
+    res.json(schedulesWithSharingUsers);
   } catch (error) {
     res.status(500).send("Internal Server Error");
   }
