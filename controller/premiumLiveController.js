@@ -98,6 +98,31 @@ const premiumLiveController = {
       res.status(500).json({ error: "Internal server error" });
     }
   },
+
+  getTodayPremiumLive: async (req, res) => {
+    try {
+      const premiumLives = await PremiumLive.find()
+        .populate("setlist")
+        .populate("theaterShow");
+  
+      const currentDate = new Date(); // Get the current date
+  
+      const todayLive = premiumLives.find((premiumLive) => {
+        const liveDate = new Date(premiumLive.liveDate);
+        return (
+          liveDate.getDate() === currentDate.getDate() &&
+          liveDate.getMonth() === currentDate.getMonth() &&
+          liveDate.getFullYear() === currentDate.getFullYear()
+        );
+      });
+  
+      res.json(todayLive); // Return null if no schedule matches today's date
+    } catch (error) {
+      console.log("Error get today live:", error);
+  
+      res.json(error);
+    }
+  },
 };
 
 module.exports = premiumLiveController;
