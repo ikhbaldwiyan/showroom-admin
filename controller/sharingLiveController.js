@@ -8,7 +8,7 @@ exports.getAllSharingLive = async (req, res) => {
         select: "showDate showTime setlist",
         populate: {
           path: "setlist",
-          select: "name originalName",
+          select: "name originalName image",
         },
       })
       .populate({
@@ -61,7 +61,7 @@ exports.getSharingLiveDetail = async (req, res) => {
         select: "showDate showTime setlist",
         populate: {
           path: "setlist",
-          select: "name originalName",
+          select: "name originalName image",
         },
       })
       .populate({
