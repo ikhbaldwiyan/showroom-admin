@@ -27,7 +27,7 @@ const premiumLiveController = {
     const premiumLivesWithSharingUsers = premiumLives.map((premiumLive) => {
       const matchingData = combinedData.find(
         (data) =>
-          data.scheduleId.toString() === premiumLive.theaterShow.toString()
+          data?.scheduleId?.toString() === premiumLive?.theaterShow?.toString()
       );
       return {
         ...premiumLive._doc,

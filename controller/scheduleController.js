@@ -2,6 +2,7 @@ const axios = require("axios");
 const Schedule = require("../models/Schedule");
 const Member = require("../models/Member");
 const SharingLive = require("../models/SharingLive");
+const PremiumLive = require("../models/PremiumLive");
 
 // GET all theater schedules
 exports.getAllSchedules = async (req, res) => {
@@ -16,8 +17,9 @@ exports.getAllSchedules = async (req, res) => {
     // Fetch and attach sharing users to each schedule
     const schedulesWithSharingUsers = await Promise.all(
       schedules.map(async (schedule) => {
-        const sharingUsers = await SharingLive.find({ schedule_id: schedule._id })
-          .populate("user_id", "name user_id"); // Populate user details if needed
+        const sharingUsers = await SharingLive.find({
+          schedule_id: schedule._id,
+        }).populate("user_id", "name user_id"); // Populate user details if needed
         return {
           ...schedule._doc,
           sharingUsers: sharingUsers.map((user) => user.user_id),
@@ -73,7 +75,7 @@ exports.createSchedule = async (req, res) => {
       webImage,
     } = req.body;
 
-    const memberIds = memberList.map((member) => member);
+    const memberIds = memberList?.map((member) => member);
 
     const newSchedule = new Schedule({
       showDate,
@@ -91,6 +93,13 @@ exports.createSchedule = async (req, res) => {
       webImage,
     });
     const createdSchedule = await newSchedule.save();
+
+    const premiumLive = await PremiumLive.create({
+      liveDate: showDate,
+      webSocketId: "sr_id=",
+      setlist: setlist,
+      theaterShow: createdSchedule._id,
+    });
 
     res.json(createdSchedule);
   } catch (error) {
