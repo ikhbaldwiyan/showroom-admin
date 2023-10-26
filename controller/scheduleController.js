@@ -212,3 +212,16 @@ exports.getTodayTheaterSchedule = async (req, res) => {
     return null;
   }
 };
+
+exports.toggleScheduleStatus = async (req, res) => {
+  try {
+    const schedule = await Schedule.findById(req.params.id);
+    schedule.isOnWeekSchedule = !schedule.isOnWeekSchedule;
+    await schedule.save();
+    res.json(schedule);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while toggling task status." });
+  }
+};

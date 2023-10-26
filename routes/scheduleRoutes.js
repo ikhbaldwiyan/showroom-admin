@@ -9,5 +9,6 @@ router.post('/', middleware, scheduleController.createSchedule);
 router.get('/:id', scheduleController.getScheduleById);
 router.put('/:id', middleware, scheduleController.updateSchedule);
 router.delete('/:id', middleware, scheduleController.deleteSchedule);
+router.put('/toggle/:id', middleware, scheduleController.toggleScheduleStatus);
 
 module.exports = router;
