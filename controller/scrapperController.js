@@ -58,6 +58,10 @@ exports.getPremiumLiveHistory = async (req, res) => {
     const $ = cheerio.load(response.data);
     const results = [];
 
+    const name = $(".pc-header-mypage-name").text().replace(/^\s+|\s+$/g, '')
+    const image = $(".pc-header-mypage-image").attr("src")
+    const level = $(".pc-header-mypage-level").text().replace(/^\s+|\s+$/g, '')
+
     $(".paid-live-schedule").each((index, element) => {
       const title = $(element).find(".paid-live-title a").text().trim();
       const link = $(element).find(".paid-live-title a").attr("href");
@@ -94,6 +98,11 @@ exports.getPremiumLiveHistory = async (req, res) => {
 
     res.json({
       summary: {
+        user: {
+          name,
+          image,
+          level
+        },
         totalPaidLive: results.length,
         totalJPY: totalPrice,
         totalIDR: convertRupiah(`${totalPrice * exchangeRate}0`),
