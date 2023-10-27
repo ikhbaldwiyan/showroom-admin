@@ -9,7 +9,7 @@ exports.getTheaterSchedule = async (req, res) => {
     const schedules = [];
 
     $(".entry-mypage__history tbody tr").each((index, element) => {
-      const dateTimeString = $(element).find('td:first-child').text().trim();
+      const dateTimeString = $(element).find("td:first-child").text().trim();
       const dateRegex = /(\d{1,2}\.\d{1,2}\.\d{4})/; // Matches "dd.mm.yyyy"
       const timeRegex = /(\d{1,2}:\d{2})/; // Matches "hh:mm"
 
@@ -19,14 +19,19 @@ exports.getTheaterSchedule = async (req, res) => {
       const date = dateMatch ? dateMatch[1] : null;
       const time = timeMatch ? timeMatch[1] : null;
 
-      const setlist = $(element).find('td:nth-child(2)').text().trim();
-      const members = $(element).find('td:nth-child(3)').text().trim().split(',').map(member => member.trim());
+      const setlist = $(element).find("td:nth-child(2)").text().trim();
+      const members = $(element)
+        .find("td:nth-child(3)")
+        .text()
+        .trim()
+        .split(",")
+        .map((member) => member.trim());
 
       schedules.push({
         date: date,
         time: time,
         setlist: setlist,
-        members: members
+        members: members,
       });
     });
 
@@ -58,9 +63,13 @@ exports.getPremiumLiveHistory = async (req, res) => {
     const $ = cheerio.load(response.data);
     const results = [];
 
-    const name = $(".pc-header-mypage-name").text().replace(/^\s+|\s+$/g, '')
-    const image = $(".pc-header-mypage-image").attr("src")
-    const level = $(".pc-header-mypage-level").text().replace(/^\s+|\s+$/g, '')
+    const name = $(".pc-header-mypage-name")
+      .text()
+      .replace(/^\s+|\s+$/g, "");
+    const image = $(".pc-header-mypage-image").attr("src");
+    const level = $(".pc-header-mypage-level")
+      .text()
+      .replace(/^\s+|\s+$/g, "");
 
     $(".paid-live-schedule").each((index, element) => {
       const title = $(element).find(".paid-live-title a").text().trim();
@@ -92,7 +101,7 @@ exports.getPremiumLiveHistory = async (req, res) => {
           }
         })
         .filter(Boolean);
-    
+
       return show;
     };
 
@@ -101,7 +110,7 @@ exports.getPremiumLiveHistory = async (req, res) => {
         user: {
           name,
           image,
-          level
+          level,
         },
         totalPaidLive: results.length,
         totalJPY: totalPrice,
@@ -121,5 +130,57 @@ exports.getPremiumLiveHistory = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.getMostVisitRoom = async (req, res) => {
+  try {
+    let roomIds = [];
+    const roomList = await axios.get(
+      "https://jkt48-showroom-api.vercel.app/api/rooms"
+    );
+    roomList.data.map((item) => {
+      roomIds.push(item.id);
+    });
+
+    const roomListGen10 = await axios.get(
+      "https://jkt48-showroom-api.vercel.app/api/rooms/academy"
+    );
+    roomListGen10.data.map((item) => {
+      roomIds.push(item.room_id);
+    });
+
+    const roomListTrainee = await axios.get(
+      "https://jkt48-showroom-api.vercel.app/api/rooms/trainee"
+    );
+    roomListTrainee.data.map((item) => {
+      roomIds.push(item.room_id);
+    });
+
+    const promises = Object.values(roomIds).map(async (room_id) => {
+      const response = await axios.post(
+        "https://laravel-showroom-api.vercel.app/api/profile/room",
+        {
+          room_id: room_id,
+          cookie: req.body.token,
+        }
+      );
+
+      return response.data;
+    });
+
+    const room = await Promise.all(promises);
+
+    const mostVisitRoom = room.map((item) => {
+      return {
+        name: item?.main_name,
+        image: item?.image_square,
+        visit: item?.visit_count,
+      };
+    });
+
+    res.send(mostVisitRoom);
+  } catch (error) {
+    console.log(error);
   }
 };
