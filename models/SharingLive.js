@@ -28,6 +28,10 @@ const SharingLiveSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    order_id: {
+      type: String,
+      required: true,
+    },
   },
   {
     collection: "sharing-lives",
