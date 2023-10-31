@@ -104,7 +104,7 @@ exports.sendDiscordSharingUser = (req, res) => {
               {
                 type: "sharing",
                 messageType: "chat",
-                message: message,
+                message,
               }
             )
             .then((res) => {
@@ -116,7 +116,7 @@ exports.sendDiscordSharingUser = (req, res) => {
 
           res.json({
             user: discordUser,
-            message: notif,
+            message,
           });
         } else {
           res.send({ message: "User not found on Discord server" });
