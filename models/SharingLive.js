@@ -20,6 +20,10 @@ const SharingLiveSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    discord_image: {
+      type: String,
+      required: true,
+    },
     status: {
       type: String,
       required: true,

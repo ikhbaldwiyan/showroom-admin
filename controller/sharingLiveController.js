@@ -22,7 +22,7 @@ exports.getAllSharingLive = async (req, res) => {
 };
 
 exports.registerSharingLive = async (req, res) => {
-  const { schedule_id, discord_name, status, user_id, image, phone_number } = req.body;
+  const { schedule_id, discord_name, status, user_id, image, phone_number, discord_image } = req.body;
   try {
     // Find the latest order ID from the database
     const latestOrder = await SharingLive.findOne().sort({ order_id: -1 });
@@ -41,6 +41,7 @@ exports.registerSharingLive = async (req, res) => {
       user_id,
       schedule_id,
       discord_name,
+      discord_image,
       status,
       image,
       phone_number,
