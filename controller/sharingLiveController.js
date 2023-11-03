@@ -2,7 +2,20 @@ const SharingLive = require("../models/SharingLive");
 
 exports.getAllSharingLive = async (req, res) => {
   try {
-    const sharingLive = await SharingLive.find()
+    const { search } = req.query;
+    const searchQuery = search || '';
+
+    const query = {
+      $or: [
+        { "user_id.user_id": { $regex: searchQuery, $options: 'i' } }, 
+        { "user_id.name": { $regex: searchQuery, $options: 'i' } },
+        { "discord_name": { $regex: searchQuery, $options: 'i' } },
+        { "order_id": { $regex: searchQuery, $options: 'i' } },
+        { "schedule_id.setlist.name": { $regex: searchQuery, $options: 'i' } }, 
+      ],
+    };
+
+    const sharingLives = await SharingLive.find(query)
       .populate({
         path: "schedule_id",
         select: "showDate showTime setlist",
@@ -15,7 +28,8 @@ exports.getAllSharingLive = async (req, res) => {
         path: "user_id",
         select: "name user_id",
       });
-    res.json(sharingLive);
+
+    res.json(sharingLives);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -35,7 +49,7 @@ exports.registerSharingLive = async (req, res) => {
     }
 
     // Format the order number with leading zeros and combine it with "SR"
-    const order_id = `SR${orderNumber.toString().padStart(3, '0')}`;
+    const order_id = `SR${orderNumber.toString().padStart(3, "0")}`;
 
     const newsharingLive = new SharingLive({
       user_id,
@@ -45,7 +59,7 @@ exports.registerSharingLive = async (req, res) => {
       status,
       image,
       phone_number,
-      order_id
+      order_id,
     });
 
     const registeredUser = await SharingLive.findOne({
@@ -54,7 +68,9 @@ exports.registerSharingLive = async (req, res) => {
     });
 
     if (registeredUser) {
-      return res.status(400).json({ message: "User is already registered for this sharing live." });
+      return res
+        .status(400)
+        .json({ message: "User is already registered for this sharing live." });
     }
 
     await newsharingLive.save();
@@ -95,7 +111,8 @@ exports.getSharingLiveDetail = async (req, res) => {
 
 exports.updateSharingLive = async (req, res) => {
   const sharingLiveId = req.params.id;
-  const { schedule_id, discord_name, status, user_id, image, phone_number } = req.body;
+  const { schedule_id, discord_name, status, user_id, image, phone_number } =
+    req.body;
 
   try {
     const sharingLive = await SharingLive.findByIdAndUpdate(
