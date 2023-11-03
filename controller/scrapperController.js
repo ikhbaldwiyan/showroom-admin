@@ -35,7 +35,7 @@ exports.getTheaterSchedule = async (req, res) => {
       });
     });
 
-    res.json(schedules?.slice(-2));
+    res.json(schedules);
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Internal Server Error" });

@@ -52,8 +52,8 @@ exports.getAllNotificationsForAdmin = async (req, res) => {
 
 exports.checkDiscordAccount = (req, res) => {
   const API = req.query.name
-    ? `${DISCORD_API}/search?query=${req.query.name}&limit=20`
-    : `${DISCORD_API}?limit=30`;
+    ? `${DISCORD_API}/search?query=${req.query.name}&limit=30`
+    : `${DISCORD_API}?limit=60`;
 
   try {
     axios
@@ -63,15 +63,7 @@ exports.checkDiscordAccount = (req, res) => {
         },
       })
       .then((response) => {
-        res.status(200).send(
-          response.data.sort((a, b) => {
-            const joinedAtA = new Date(a.joined_at);
-            const joinedAtB = new Date(b.joined_at);
-
-            // Compare join dates (newest first)
-            return joinedAtB - joinedAtA;
-          })
-        );
+        res.status(200).send(response.data.filter((item) => !item.user.bot));
       });
   } catch (err) {
     console.log(err);
@@ -79,7 +71,8 @@ exports.checkDiscordAccount = (req, res) => {
 };
 
 exports.sendDiscordSharingUser = (req, res) => {
-  const { name, setlist, orderId } = req.body;
+  const { name, setlist, orderId, type } = req.body;
+  let message = "";
 
   try {
     axios
@@ -96,7 +89,11 @@ exports.sendDiscordSharingUser = (req, res) => {
           const username = `<@${userId}>`;
 
           /// SEND NOTIF TO DISCORD SERVER
-          const message = `${username} berhasil register sharing live **${setlist}** dengan order id **#${orderId}** silahkan kontak <@&1104077539040825365> untuk info lebih lanjut`;
+          if (type === "register") {
+            message = `${username} berhasil register sharing live **${setlist}** dengan order id **#${orderId}**`;
+          } else if (type === "success") {
+            message = `${username} pembayaran sharing live **${setlist}** dengan order id **#${orderId}** berhasil`;
+          }
 
           axios
             .post(

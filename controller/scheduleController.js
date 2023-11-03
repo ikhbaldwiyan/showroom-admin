@@ -192,12 +192,12 @@ exports.deleteSchedule = async (req, res) => {
 
 exports.getTodayTheaterSchedule = async (req, res) => {
   try {
-    const response = await axios.get(
-      "https://showroom-admin.ikhbaldwiyan.repl.co/schedules?isOnWeekSchedule=true"
-    );
+    const schedules = await Schedule.find()
+      .populate("setlist")
+      .populate("memberList");
     const currentDate = new Date(); // Get the current date
 
-    const todaySchedule = response.data.find((schedule) => {
+    const todaySchedule = schedules.find((schedule) => {
       const showDate = new Date(schedule.showDate);
       return (
         showDate.getDate() === currentDate.getDate() &&
