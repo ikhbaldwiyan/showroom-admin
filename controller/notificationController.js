@@ -92,7 +92,7 @@ exports.sendDiscordSharingUser = (req, res) => {
           /// SEND NOTIF TO DISCORD SERVER
           if (type === "register") {
             api = "https://jkt48-showroom-bot.ikhbaldwiyan.repl.co/discord/sharing-live"
-            message = `${username} berhasil register sharing live **${setlist}** dengan order id **#${orderId}**`;
+            message = `Berhasil Register sharing live dengan order id **#${orderId}**`;
           } else if (type === "success") {
             message = `${username} pembayaran sharing live **${setlist}** dengan order id **#${orderId}** berhasil`;
           }
