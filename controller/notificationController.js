@@ -71,7 +71,7 @@ exports.checkDiscordAccount = (req, res) => {
 };
 
 exports.sendDiscordSharingUser = (req, res) => {
-  const { name, setlist, orderId, type } = req.body;
+  const { name, setlist, orderId, type, sharingId } = req.body;
   let message = "";
 
   try {
@@ -102,6 +102,8 @@ exports.sendDiscordSharingUser = (req, res) => {
                 type: "sharing",
                 messageType: "chat",
                 message,
+                sharingId,
+                discordName: username
               }
             )
             .then((res) => {
