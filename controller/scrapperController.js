@@ -1,5 +1,6 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
+const API = "https://jkt48-showroom-apis.vercel.app/api";
 
 exports.getTheaterSchedule = async (req, res) => {
   try {
@@ -105,26 +106,35 @@ exports.getPremiumLiveHistory = async (req, res) => {
       return show;
     };
 
+    const shows = [
+      "Cara Meminum Ramune",
+      "Aturan Anti Cinta",
+      "Ingin Bertemu",
+      "Tunas di Balik Seragam",
+      "Banzai",
+      "Pajama Drive",
+      "11th Anniversary Event",
+    ];
+
+    const showInfo = shows
+      .map((show) => ({
+        name: show,
+        total: filterShowTheater(show).length,
+      }))
+      .sort((a, b) => b.total - a.total);
+
     res.json({
-      summary: {
-        user: {
-          name,
-          image,
-          level,
-        },
-        totalPaidLive: results.length,
-        totalJPY: totalPrice,
-        totalIDR: convertRupiah(`${totalPrice * exchangeRate}0`),
-        show: {
-          rkj: filterShowTheater("Aturan Anti Cinta").length,
-          ramune: filterShowTheater("Ramune").length,
-          aitakata: filterShowTheater("Ingin Bertemu").length,
-          snm: filterShowTheater("Tunas").length,
-          banzai: filterShowTheater("Banzai").length,
-          pajama: filterShowTheater("Pajama").length,
-          anniv: filterShowTheater("Anniv").length,
-        },
+      user: {
+        name,
+        image,
+        level,
       },
+      topSetlist:
+        "https://media.discordapp.net/attachments/1108380195175551047/1169569783528833074/a0d68478-a16a-4b8b-a722-d1a2027bd5d8-transformed_1.jpeg?ex=6555e1bd&is=65436cbd&hm=2913d772f62f381bf42e62c640e1062d48734049f40b67402fa89e89b0019571&=&width=950&height=607",
+      totalPaidLive: results.length,
+      totalJPY: totalPrice,
+      totalIDR: convertRupiah(`${totalPrice * exchangeRate}0`),
+      show: showInfo,
       results,
     });
   } catch (error) {
@@ -136,23 +146,17 @@ exports.getPremiumLiveHistory = async (req, res) => {
 exports.getMostVisitRoom = async (req, res) => {
   try {
     let roomIds = [];
-    const roomList = await axios.get(
-      "https://jkt48-showroom-api.vercel.app/api/rooms"
-    );
+    const roomList = await axios.get(`${API}/rooms`);
     roomList.data.map((item) => {
       roomIds.push(item.id);
     });
 
-    const roomListGen10 = await axios.get(
-      "https://jkt48-showroom-api.vercel.app/api/rooms/academy"
-    );
+    const roomListGen10 = await axios.get(`${API}/rooms/academy`);
     roomListGen10.data.map((item) => {
       roomIds.push(item.room_id);
     });
 
-    const roomListTrainee = await axios.get(
-      "https://jkt48-showroom-api.vercel.app/api/rooms/trainee"
-    );
+    const roomListTrainee = await axios.get(`${API}/rooms/trainee`);
     roomListTrainee.data.map((item) => {
       roomIds.push(item.room_id);
     });
@@ -171,13 +175,15 @@ exports.getMostVisitRoom = async (req, res) => {
 
     const room = await Promise.all(promises);
 
-    const mostVisitRoom = room.map((item) => {
-      return {
-        name: item?.main_name,
-        image: item?.image_square,
-        visit: item?.visit_count,
-      };
-    });
+    const mostVisitRoom = room
+      .map((item) => {
+        return {
+          name: item?.room_url_key?.replace("JKT48_", ""),
+          image: item?.image_square?.replace("_m.jpeg", "_l.jpeg"),
+          visit: item?.visit_count,
+        };
+      })
+      .sort((a, b) => b.visit - a.visit);
 
     res.send(mostVisitRoom);
   } catch (error) {
