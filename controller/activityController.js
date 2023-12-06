@@ -1,5 +1,6 @@
 const Activity = require("../models/Activity");
 const User = require("../models/User"); // Assuming you have a User model
+const { responseSuccess } = require("../utils/response");
 
 // Controller to create a new activity log
 exports.createActivity = async (req, res) => {
@@ -48,7 +49,15 @@ exports.createActivity = async (req, res) => {
 exports.getAllActivities = async (req, res) => {
   try {
     // Extract the log_name from the request query
-    const { type } = req.query;
+    const { type, limit, page } = req.query;
+
+    const limitData = limit ?? 10
+    const pageData = page ?? 1
+
+    const totalData = await Activity.countDocuments({})
+
+    console.log('totalData', totalData)
+    const totalPage = Math.ceil(totalData/ limitData)
 
     // Create a filter object to conditionally filter by log_name
     const filter = {};
@@ -58,12 +67,31 @@ exports.getAllActivities = async (req, res) => {
 
     // Query the activities based on the optional log_name filter
     const activities = await Activity.find(filter)
-      .populate("user")
+      .populate({
+        path: "user",
+        select: "_id name user_id"
+      })
       .populate("task")
-      .sort("-timestamp");
+      .sort("-timestamp")
+      .skip( pageData * limitData)
+      .limit(limitData)
+      .exec()
 
-    res.json(activities);
+    let result = {
+      lists: activities,
+      paginator: {
+        currentPage: parseInt(pageData),
+        limit: parseInt(limitData),
+        totalPage,
+        totalData
+      }
+    }
+
+    let response = responseSuccess(200, 'Success', result)
+
+    res.json(response);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: "An error occurred" });
   }
 };
