@@ -81,7 +81,7 @@ exports.getAllActivities = async (req, res) => {
       lists: activities,
       paginator: {
         currentPage: parseInt(pageData),
-        limit: parseInt(limitData),
+        limit: parseInt(limitData),    
         totalPage,
         totalData
       }
