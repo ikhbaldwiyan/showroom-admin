@@ -55,8 +55,6 @@ exports.getAllActivities = async (req, res) => {
     const pageData = page ?? 1
 
     const totalData = await Activity.countDocuments({})
-
-    console.log('totalData', totalData)
     const totalPage = Math.ceil(totalData/ limitData)
 
     // Create a filter object to conditionally filter by log_name
@@ -73,9 +71,9 @@ exports.getAllActivities = async (req, res) => {
       })
       .populate("task")
       .sort("-timestamp")
-      .skip( pageData * limitData)
+      .skip((pageData - 1) * limitData)
       .limit(limitData)
-      .exec()
+      .exec();
 
     let result = {
       lists: activities,
@@ -85,13 +83,13 @@ exports.getAllActivities = async (req, res) => {
         totalPage,
         totalData
       }
-    }
+    };
 
-    let response = responseSuccess(200, 'Success', result)
+    let response = responseSuccess(200, 'Success', result);
 
     res.json(response);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({ error: "An error occurred" });
   }
 };
