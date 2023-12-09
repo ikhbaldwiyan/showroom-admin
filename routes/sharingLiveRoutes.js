@@ -8,5 +8,6 @@ router.get('/:id', sharingLiveController.getSharingLiveDetail);
 router.put('/:id', sharingLiveController.updateSharingLive);
 router.delete('/:id', sharingLiveController.deleteSharingLive);
 router.get('/users/:id', sharingLiveController.getSharingLiveUsers);
+router.get('/history/:userId', sharingLiveController.getHistorySharingLive);
 
 module.exports = router;

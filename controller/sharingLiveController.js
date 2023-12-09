@@ -178,3 +178,27 @@ exports.getSharingLiveUsers = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+exports.getHistorySharingLive = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const sharingLive = await SharingLive.find({ user_id: userId })
+      .populate({
+        path: "schedule_id",
+        select: "showDate showTime setlist",
+        populate: {
+          path: "setlist",
+          select: "name originalName image",
+        },
+      })
+
+    if (!sharingLive || sharingLive.length === 0) {
+      return res.status(404).json({ error: "No sharing live events found for this user" });
+    }
+
+    res.json(sharingLive);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
