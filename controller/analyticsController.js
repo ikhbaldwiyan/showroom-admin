@@ -105,17 +105,22 @@ exports.getAnalyticsData = async (req, res) => {
 };
 
 exports.getSingleToken = async (req, res) => {
-  const jwtClient = new google.auth.JWT(
-    process.env.ANALYTICS_EMAIL,
-    undefined,
-    process.env.ANALYTICS_KEY,
-    ["https://www.googleapis.com/auth/analytics.readonly"],
-    undefined
-  );
+  try {
+    const jwtClient = new google.auth.JWT(
+      process.env.ANALYTICS_EMAIL,
+      undefined,
+      process.env.ANALYTICS_KEY,
+      ["https://www.googleapis.com/auth/analytics.readonly"],
+      undefined
+    );
 
-  const token = await jwtClient.authorize();
+    const token = await jwtClient.authorize();
 
-  res.json(token);
+    res.json(token);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 exports.getRealTimeData = async (req, res) => {
