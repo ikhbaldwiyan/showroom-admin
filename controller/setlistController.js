@@ -15,6 +15,7 @@ exports.listSetlists = async (req, res) => {
 exports.addSetlist = async (req, res) => {
   try {
     const { name, description, originalName, songs, image } = req.body;
+    console.log('name', name)
     const setlist = new Setlist({
       name,
       originalName,
