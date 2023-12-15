@@ -13,3 +13,15 @@ exports.responseSuccess = (statusCode, message, data = null) => {
 
   return response
 }
+
+exports.responseError = (statusCode, message) => {
+  let response = {
+    meta: {
+      code : statusCode,
+      success: false,
+      message: message,
+    }
+  }
+
+  return response
+}
