@@ -21,6 +21,7 @@ const analyticsRoutes = require("./routes/analyticsRoutes");
 const sharingLiveRoutes = require("./routes/sharingLiveRoutes");
 const scrapperRoutes = require("./routes/scrapperRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const discordRoutes = require('./routes/discordRoute')
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -52,6 +53,7 @@ mongoose
     app.use("/sharing-live", sharingLiveRoutes);
     app.use("/scrapper", scrapperRoutes);
     app.use("/notifications", notificationRoutes);
+    app.use("/discord", discordRoutes);
 
     app.get("/", (req, res) => {
       res.send({

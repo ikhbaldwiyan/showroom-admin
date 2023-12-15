@@ -9,6 +9,8 @@ const songSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+}, {
+  collection: 'listsong'
 });
 
 const setlistSchema = new mongoose.Schema({
@@ -25,8 +27,9 @@ const setlistSchema = new mongoose.Schema({
     required: true,
   },
   songs: {
-    type: [songSchema], // Now it's an array of objects (songs)
-    required: true,
+    type: [mongoose.Schema.Types.ObjectId],
+    ref : 'Songs',
+    require: true
   },
   image: {
     type: String,
@@ -38,4 +41,6 @@ const setlistSchema = new mongoose.Schema({
 
 const Setlist = mongoose.model('Setlist', setlistSchema);
 
-module.exports = Setlist;
+const Songs = mongoose.model('Songs', songSchema)
+
+module.exports = {Setlist, Songs};
