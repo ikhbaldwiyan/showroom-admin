@@ -5,6 +5,7 @@ exports.createUser = async (req, res) => {
     const newUser = new User({
       user_id: req.body.user_id,
       name: req.body.name,
+      avatar: req.body.avatar,
       can_3_room: req.body.can_3_room || false,
       can_4_room: req.body.can_4_room || false,
       can_farming_page: req.body.can_farming_page || false,
@@ -50,6 +51,7 @@ exports.updateUserPermissions = async (req, res) => {
     const updatedUserPermissions = {
       user_id: req.body.user_id,
       name: req.body.name,
+      avatar: req.body.avatar,
       can_3_room: req.body.can_3_room,
       can_4_room: req.body.can_4_room,
       can_farming_page: req.body.can_farming_page,
