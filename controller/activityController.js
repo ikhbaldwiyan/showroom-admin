@@ -67,7 +67,7 @@ exports.getAllActivities = async (req, res) => {
     const activities = await Activity.find(filter)
       .populate({
         path: "user",
-        select: "_id name user_id"
+        select: "_id name user_id avatar"
       })
       .populate("task")
       .sort("-timestamp")
