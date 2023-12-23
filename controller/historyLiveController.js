@@ -34,6 +34,7 @@ exports.getAllLiveHistory = async (req, res) => {
         profile: {
           room_name: profileApi.data.room_name,
           image: profileApi.data.image,
+          image_square: profileApi.data.image_square,
           views: profileApi.data.view_num,
           is_onlive: profileApi.data.is_onlive,
           current_live_started_at: profileApi.data.current_live_started_at,
@@ -86,6 +87,7 @@ exports.getLiveDetail = async (req, res) => {
       return {
         room_name: profile.room_name,
         image: profile.image,
+        image_square: profileApi.data.image_square,
         views: profile.view_num,
         is_onlive: profile.is_onlive,
         current_live_started_at: profile.current_live_started_at,
