@@ -1,5 +1,6 @@
 const Activity = require("../models/Activity");
 const HistoryLive = require("../models/HistoryLive");
+const fetchService = require("../utils/fetchService");
 
 exports.getAllLiveHistory = async (req, res) => {
   try {
@@ -15,14 +16,53 @@ exports.getLiveDetail = async (req, res) => {
   const { id } = req.params;
   try {
     const liveData = await HistoryLive.findOne({ live_id: parseInt(id) });
-    const activityLog = await Activity.find({ live_id: parseInt(id) }).populate("user");
+    
+    const populateData = {
+      path: "user",
+      select: "name user_id avatar",
+    };
+
+    const watch = await Activity.find({
+      live_id: parseInt(id),
+      log_name: "Watch",
+    }).populate(populateData);
+
+    const comment = await Activity.find({
+      live_id: parseInt(id),
+      log_name: "Comment",
+    }).populate(populateData);
+
+    const profileUrl = `https://www.showroom-live.com/api/room/profile?room_id=${liveData?.roomId}`;
+    const profileApi = await fetchService(profileUrl, res);
+
+    // Destrurct response profile
+    const profileData = (profile) => {
+      return {
+        room_name: profile.room_name,
+        image: profile.image,
+        views: profile.view_num,
+        is_onlive: profile.is_onlive,
+        current_live_started_at: profile.current_live_started_at,
+      };
+    };
 
     if (!liveData) {
       return res.status(404).json({ message: "Live not found" });
     }
 
-    res.json({ liveData, activityLog });
+    res.json({
+      profile: profileData(profileApi.data),
+      liveData: {
+        ...liveData._doc,
+        users: watch.length,
+      },
+      activityLog: {
+        watch,
+        comment,
+      },
+    });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
