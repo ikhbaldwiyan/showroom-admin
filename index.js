@@ -22,6 +22,7 @@ const sharingLiveRoutes = require("./routes/sharingLiveRoutes");
 const scrapperRoutes = require("./routes/scrapperRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const discordRoutes = require('./routes/discordRoute')
+const idnHistoryLive = require('./routes/idnHistoryLiveRoutes')
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -54,6 +55,7 @@ mongoose
     app.use("/scrapper", scrapperRoutes);
     app.use("/notifications", notificationRoutes);
     app.use("/discord", discordRoutes);
+    app.use("/idn-live-history", idnHistoryLive);
 
     app.get("/", (req, res) => {
       res.send({
