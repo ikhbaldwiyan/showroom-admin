@@ -79,7 +79,7 @@ const idnHistoryLiveController = {
       }).populate(populateData);
   
       if (!liveData) {
-        return res.status(404).json({ message: "Live not found" });
+        throw Error( "Live not found" ) 
       }
   
       res.json({
@@ -95,6 +95,7 @@ const idnHistoryLiveController = {
       console.log("error", error);
       statusCode = 400;
       result = responseError(400, error);
+      return res.status(404).json({ message: "Live not found" });
     }
   },
 };
