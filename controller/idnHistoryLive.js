@@ -61,27 +61,24 @@ const idnHistoryLiveController = {
   },
 
   getIdnHistoryDetail: async (req, res) => {
-    let statusCode = 500,
-    result = responseError(statusCode, "Internal Server Error");
-
     const { id } = req.params;
     try {
       const liveData = await idnHistoryLive.findOne({ live_id: id });
-  
+
       const populateData = {
         path: "user",
         select: "name user_id avatar",
       };
-  
+
       const watch = await Activity.find({
         live_id: id,
         log_name: "Watch",
       }).populate(populateData);
-  
+
       if (!liveData) {
-        throw Error( "Live not found" ) 
+        throw Error("Live not found");
       }
-  
+
       res.json({
         liveData: {
           ...liveData._doc,
@@ -93,9 +90,29 @@ const idnHistoryLiveController = {
       });
     } catch (error) {
       console.log("error", error);
-      statusCode = 400;
-      result = responseError(400, error);
-      return res.status(404).json({ message: "Live not found" });
+      result = responseError(400, "Live Not Found");
+      return res.status(404).json(result);
+    }
+  },
+
+  getIdnHistoryMember: async (req, res) => {
+    try {
+      const historyMember = await idnHistoryLive.find({
+        username: req.params.username,
+      });
+
+      if (historyMember.length === 0) {
+        throw Error("Member Live not found");
+      }
+
+      res.json({
+        totalData: historyMember.length,
+        data: historyMember,
+      });
+    } catch (error) {
+      console.log("error", error);
+      result = responseError(400, "History Member Live not found");
+      return res.status(404).json(result);
     }
   },
 };
