@@ -131,24 +131,41 @@ exports.deleteActivityById = async (req, res) => {
 exports.getActivityUser = async (req, res) => {
   try {
     const userId = req.params.id;
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 10; // Default to limit 10 if not provided
+
+    const skip = (page - 1) * limit;
+
+    const activityCount = await Activity.countDocuments({
+      user: userId,
+    });
+
+    const totalPages = Math.ceil(activityCount / limit);
+
     const activity = await Activity.find({
       user: userId,
-    }).sort("-timestamp");
+    })
+      .sort("-timestamp")
+      .skip(skip)
+      .limit(limit);
 
     const user = await User.findById(userId).select("user_id avatar name");
 
-    if (!activity) {
+    if (!activity || activity.length === 0) {
       return res.status(404).json({ error: "Activity log not found" });
     }
 
     res.json({
-      detail: {
-        ...user._doc,
-        totalActivity: activity.length,
-      },
+      user,
       data: activity,
+      detail: {
+        totalActivity: activityCount,
+        totalPage: totalPages,
+        page
+      },
     });
   } catch (error) {
     res.status(500).json({ error: "An error occurred" });
   }
 };
+
