@@ -7,5 +7,6 @@ router.get("/", middleware, activityController.getAllActivities);
 router.post("/", activityController.createActivity);
 router.get("/:id", middleware, activityController.getActivityById);
 router.delete("/:id", middleware, activityController.deleteActivityById);
+router.get("/user/:id", middleware, activityController.getActivityUser);
 
 module.exports = router;

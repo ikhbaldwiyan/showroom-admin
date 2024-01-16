@@ -13,7 +13,7 @@ exports.createActivity = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    
+
     const checkType = ["Watch", "Comment", "Premium Live"];
 
     if (checkType.includes(log_name)) {
@@ -51,11 +51,11 @@ exports.getAllActivities = async (req, res) => {
     // Extract the log_name from the request query
     const { type, limit, page } = req.query;
 
-    const limitData = limit ?? 10
-    const pageData = page ?? 1
+    const limitData = limit ?? 10;
+    const pageData = page ?? 1;
 
-    const totalData = await Activity.countDocuments({})
-    const totalPage = Math.ceil(totalData/ limitData)
+    const totalData = await Activity.countDocuments({});
+    const totalPage = Math.ceil(totalData / limitData);
 
     // Create a filter object to conditionally filter by log_name
     const filter = {};
@@ -67,7 +67,7 @@ exports.getAllActivities = async (req, res) => {
     const activities = await Activity.find(filter)
       .populate({
         path: "user",
-        select: "_id name user_id avatar"
+        select: "_id name user_id avatar",
       })
       .populate("task")
       .sort("-timestamp")
@@ -81,11 +81,11 @@ exports.getAllActivities = async (req, res) => {
         currentPage: parseInt(pageData),
         limit: parseInt(limitData),
         totalPage,
-        totalData
-      }
+        totalData,
+      },
     };
 
-    let response = responseSuccess(200, 'Success', result);
+    let response = responseSuccess(200, "Success", result);
 
     res.json(response);
   } catch (error) {
@@ -124,6 +124,31 @@ exports.deleteActivityById = async (req, res) => {
     res.json({ message: "Activity log deleted successfully" });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ error: "An error occurred" });
+  }
+};
+
+exports.getActivityUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const activity = await Activity.find({
+      user: userId,
+    }).sort("-timestamp");
+
+    const user = await User.findById(userId).select("user_id avatar name");
+
+    if (!activity) {
+      return res.status(404).json({ error: "Activity log not found" });
+    }
+
+    res.json({
+      detail: {
+        ...user._doc,
+        totalActivity: activity.length,
+      },
+      data: activity,
+    });
+  } catch (error) {
     res.status(500).json({ error: "An error occurred" });
   }
 };
