@@ -14,7 +14,7 @@ exports.createActivity = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const checkType = ["Watch", "Comment", "Premium Live"];
+    const checkType = ["Watch", "Comment", "Premium Live", "Sharing Live"];
 
     if (checkType.includes(log_name)) {
       const existingActivity = await Activity.findOne({
