@@ -1,3 +1,4 @@
+const moment = require("moment");
 const PremiumLive = require("../models/PremiumLive");
 const SharingLive = require("../models/SharingLive");
 
@@ -100,28 +101,40 @@ const premiumLiveController = {
   },
 
   getTodayPremiumLive: async (req, res) => {
-    try {
-      const premiumLives = await PremiumLive.find()
-        .populate("setlist")
-        .populate("theaterShow");
-  
-      const currentDate = new Date(); // Get the current date
-  
-      const todayLive = premiumLives.find((premiumLive) => {
-        const liveDate = new Date(premiumLive.liveDate);
-        return (
-          liveDate.getDate() === currentDate.getDate() &&
-          liveDate.getMonth() === currentDate.getMonth() &&
-          liveDate.getFullYear() === currentDate.getFullYear()
-        );
+    const todayDate = moment().format("YYYY-MM-DD");
+    const premiumLives = await PremiumLive.find({
+      liveDate: todayDate,
+    }).populate("setlist");
+
+    const scheduleIds = premiumLives.map(
+      (premiumLive) => premiumLive.theaterShow
+    );
+
+    const sharingLiveUsersPromises = scheduleIds.map(async (scheduleId) => {
+      const sharingLiveUsers = await SharingLive.find({
+        schedule_id: scheduleId,
+      }).populate({
+        path: "user_id",
+        select: "name user_id",
       });
-  
-      res.json(todayLive); // Return null if no schedule matches today's date
-    } catch (error) {
-      console.log("Error get today live:", error);
-  
-      res.json(error);
-    }
+      return { scheduleId, sharingLiveUsers };
+    });
+
+    const combinedData = await Promise.all(sharingLiveUsersPromises);
+
+    // Combine sharingLiveUsers with premiumLives based on scheduleId
+    const premiumLivesWithSharingUsers = premiumLives.map((premiumLive) => {
+      const matchingData = combinedData.find(
+        (data) =>
+          data?.scheduleId?.toString() === premiumLive?.theaterShow?.toString()
+      );
+      return {
+        ...premiumLive._doc,
+        sharingLiveUsers: matchingData ? matchingData.sharingLiveUsers : [],
+      };
+    });
+
+    res.json(premiumLivesWithSharingUsers[0]);
   },
 };
 
