@@ -68,6 +68,26 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  watchLiveIDN: {
+    type: Number,
+    default: 0
+  },
+  watchLiveOfficialJKTShowroom: {
+    type: Number,
+    default: 0
+  },
+  watchShowroomMember: {
+    type: Number,
+    default: 0
+  },
+  watchLiveMultiroom: {
+    type: Number,
+    default: 0
+  },
+  totalWatchLive: {
+    type: Number,
+    default: 0
+  },    
 }, {
   collection: 'users' // Specify the desired collection name
 });
