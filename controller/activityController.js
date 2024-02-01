@@ -13,6 +13,20 @@ exports.createActivity = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+
+    if(log_name === 'Watch'){
+
+      let update = {}
+
+      if(description.toLowerCase().includes('watch live')) update.watchShowroomMember = user.watchShowroomMember + 1
+      if(description.toLowerCase().includes('watch idn')) update.watchLiveIDN = user.watchLiveIDN + 1
+      if(description.toLowerCase().includes('SHOWROOM')) update.watchLiveOfficialJKTShowroom = user.watchLiveOfficialJKTShowroom + 1
+
+      update.totalWatchLive = user.totalWatchLive + 1
+
+      await User.findOneAndUpdate({_id: user_id}, update)
+
+    }
     
     const checkType = ["Watch", "Comment", "Premium Live"];
 
