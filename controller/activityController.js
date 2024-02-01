@@ -15,7 +15,21 @@ exports.createActivity = async (req, res) => {
     }
 
     const checkType = ["Watch", "Comment", "Premium Live", "Sharing Live"];
+    
+    if(log_name === 'Watch'){
 
+      let update = {}
+
+      if(description.toLowerCase().includes('watch live')) update.watchShowroomMember = user.watchShowroomMember + 1
+      if(description.toLowerCase().includes('watch idn')) update.watchLiveIDN = user.watchLiveIDN + 1
+      if(description.toLowerCase().includes('SHOWROOM')) update.watchLiveOfficialJKTShowroom = user.watchLiveOfficialJKTShowroom + 1
+
+      update.totalWatchLive = user.totalWatchLive + 1
+
+      await User.findOneAndUpdate({_id: user_id}, update)
+
+    }
+    
     if (checkType.includes(log_name)) {
       const existingActivity = await Activity.findOne({
         log_name,
