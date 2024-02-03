@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Activity = require("../models/Activity");
 const { responseSuccess, responseError } = require("../utils/response");
+const moment = require("moment");
 
 
 exports.getLeaderboard = async (req, res) => {
@@ -9,6 +10,46 @@ exports.getLeaderboard = async (req, res) => {
     response = responseError(statusCode, 'Internal Server Error')
 
   try {
+
+    const { filterBy, platform } = req.query
+
+    let sort = 'totalWatchLive'
+
+    if(platform) {
+      if(platform === 'Showroom') sort = 'watchShowroomMember'
+      else if(platform === 'IDN') sort = 'watchLiveIDN'
+
+      else throw new Error('Filter by platform must be Shworoom or IDN ')
+    }
+
+    // if(filterBy){
+
+    //   let params = [
+    //     { log_name: 'Watch' }
+    //   ]
+
+    //   let startDate;
+    //   let endDate;
+
+    //   if(filterBy == 'month'){
+    //     startDate = new Date(moment('01-01-2024').startOf('month'))
+    //     endDate = new Date(moment('01-01-2024').endOf('month'))
+    //   }
+
+    //   let activity_log = await Activity.find()
+    //     .where({ $and: [
+    //       { log_name: 'Watch' },
+    //       { timestamp: {
+    //         $lte: endDate,
+    //         $gte: startDate
+    //       }}
+    //     ]})
+    //     .select('_id user log_name description')
+    //     .countDocuments()
+
+    //   console.log('activity_log', activity_log)
+
+    // }
 
     const { limit, page } = req.query;
 
@@ -20,7 +61,7 @@ exports.getLeaderboard = async (req, res) => {
 
     const users = await User.find()
       .select('_id name user_id avatar totalWatchLive watchLiveIDN watchShowroomMember')
-      .sort({totalWatchLive: -1})
+      .sort({[sort]: -1})
       .skip((pageData - 1) * limitData)
       .limit(limitData)
       .exec()
@@ -38,7 +79,7 @@ exports.getLeaderboard = async (req, res) => {
     response = responseSuccess(200, 'Success', userData)
     
   } catch (error) {
-    console.log(error)
+    console.log('Error Controller Get Leaderboard : ', error.message)
     statusCode = 400
     response = responseError(statusCode, error.message)
   }
