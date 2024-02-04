@@ -196,8 +196,9 @@ exports.getTodayTheaterSchedule = async (req, res) => {
       .populate("setlist")
       .populate("memberList");
     const currentDate = new Date(); // Get the current date
+    const currentTime = currentDate.getHours() * 60 + currentDate.getMinutes(); // Convert current time to minutes
 
-    const todaySchedule = schedules.find((schedule) => {
+    const todaySchedules = schedules.filter((schedule) => {
       const showDate = new Date(schedule.showDate);
       return (
         showDate.getDate() === currentDate.getDate() &&
@@ -206,10 +207,32 @@ exports.getTodayTheaterSchedule = async (req, res) => {
       );
     });
 
-    res.json(todaySchedule); // Return null if no schedule matches today's date
+    if (todaySchedules.length === 0) {
+      res.json({
+        message: "No theater schedule for today"
+      }); // Return null if no schedule matches today's date
+      return;
+    }
+
+    // Helper function to convert show time to minutes
+    function parseShowTimeToMinutes(showTime) {
+      const [hours, minutes] = showTime.split(":");
+      return parseInt(hours) * 60 + parseInt(minutes);
+    }
+
+    // Find the next upcoming schedule based on the current time
+    const nextSchedule = todaySchedules.reduce((prev, current) => {
+      const currentStartTime = parseShowTimeToMinutes(current.showTime);
+      const prevStartTime = parseShowTimeToMinutes(prev.showTime);
+      return currentStartTime > currentTime && currentStartTime < prevStartTime
+        ? current
+        : prev;
+    });
+
+    res.json(nextSchedule);
   } catch (error) {
     console.error("Error fetching theater schedules:", error);
-    return null;
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
