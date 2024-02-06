@@ -14,9 +14,9 @@ exports.getLeaderboard = async (req, res) => {
     let result = {};
 
     if (platform) {
-      if (platform === "Showroom") sort = "watchShowroomMember";
-      else if (platform === "IDN") sort = "watchLiveIDN";
-      else throw new Error("Filter by platform must be Shworoom or IDN ");
+      if (platform === "showroom") sort = "watchShowroomMember";
+      else if (platform === "idn") sort = "watchLiveIDN";
+      else throw new Error("Filter by platform must be shworoom or idn ");
     }
 
     if (filterBy) {
@@ -24,19 +24,23 @@ exports.getLeaderboard = async (req, res) => {
       let endDate;
 
       let monthParam = req.query.month || moment().format("MM-YYYY"); // Assuming the month is provided as a query parameter
-    
+
       // Validate month parameter
       if (!/^\d{2}-\d{4}$/.test(monthParam)) {
-          throw new Error("Invalid month parameter format. Please provide month in MM-YYYY format.");
+        throw new Error(
+          "Invalid month parameter format. Please provide month in MM-YYYY format."
+        );
       }
-  
+
       // Parse the provided month parameter
       let [month, year] = monthParam.split("-");
       month = parseInt(month);
       year = parseInt(year);
-  
+
       if (isNaN(month) || month < 1 || month > 12) {
-          throw new Error("Invalid month number. Month must be between 1 and 12.");
+        throw new Error(
+          "Invalid month number. Month must be between 1 and 12."
+        );
       }
 
       if (filterBy === "month") {
@@ -59,30 +63,32 @@ exports.getLeaderboard = async (req, res) => {
         .select("_id user log_name description");
 
       // Aggregate activity logs to get total watch time for each user
-      let userWatchTimeMap = {};
+      let filteredUsers = {};
       for (const activity of activity_log) {
         const userId = activity.user.toString(); // Assuming user is stored as ObjectId
-        if (!userWatchTimeMap[userId]) {
-          userWatchTimeMap[userId] = {
+        if (!filteredUsers[userId]) {
+          filteredUsers[userId] = {
             _id: userId,
             totalWatchLive: 0,
             watchLiveIDN: 0,
             watchShowroomMember: 0,
           };
         }
-        userWatchTimeMap[userId].totalWatchLive++;
+        filteredUsers[userId].totalWatchLive++;
         if (activity.description.includes("Watch Live")) {
-          userWatchTimeMap[userId].watchShowroomMember++;
+          filteredUsers[userId].watchShowroomMember++;
         } else if (activity.description.includes("Watch IDN Live")) {
-          userWatchTimeMap[userId].watchLiveIDN++;
+          filteredUsers[userId].watchLiveIDN++;
         }
       }
 
-      // Convert the userWatchTimeMap to an array for sorting
-      let usersWithWatchTime = Object.values(userWatchTimeMap);
+      // Convert the filteredUsers to an array for sorting
+      let usersWithWatchTime = Object.values(filteredUsers);
 
-      // Sort the array by totalWatchLive in descending order
-      usersWithWatchTime.sort((a, b) => b.totalWatchLive - a.totalWatchLive);
+      // Sort the array by the specified platform in descending order
+      usersWithWatchTime.sort((a, b) => {
+        return b[sort] - a[sort];
+      });
 
       // Pagination
       const pageData = parseInt(req.query.page) || 1; // Current page, default to 1
