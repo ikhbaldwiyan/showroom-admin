@@ -14,9 +14,9 @@ exports.getLeaderboard = async (req, res) => {
     let result = {};
 
     if (platform) {
-      if (platform === "showroom") sort = "watchShowroomMember";
-      else if (platform === "idn") sort = "watchLiveIDN";
-      else throw new Error("Filter by platform must be shworoom or idn ");
+      if (platform === "Showroom") sort = "watchShowroomMember";
+      else if (platform === "IDN") sort = "watchLiveIDN";
+      else throw new Error("Filter by platform must be Shworoom or IDN");
     }
 
     if (filterBy) {
