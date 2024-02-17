@@ -1,7 +1,6 @@
 const { default: axios } = require("axios");
 const Notification = require("../models/Notification");
-const DISCORD_API =
-  "https://discord.com/api/v10/guilds/1076511743909564506/members";
+const { DISCORD_API, BOT_API } = require("../utils/api");
 
 exports.createNotification = async (req, res) => {
   try {
@@ -73,7 +72,7 @@ exports.checkDiscordAccount = (req, res) => {
 exports.sendDiscordSharingUser = (req, res) => {
   const { name, setlist, orderId, type, sharingId } = req.body;
   let message = "";
-  let api = "https://jkt48-showroom-bot.ikhbaldwiyan.repl.co/discord/message-bot";
+  let api = `${BOT_API}/message-bot`;
 
   try {
     axios
@@ -91,7 +90,7 @@ exports.sendDiscordSharingUser = (req, res) => {
 
           /// SEND NOTIF TO DISCORD SERVER
           if (type === "register") {
-            api = "https://jkt48-showroom-bot.ikhbaldwiyan.repl.co/discord/sharing-live"
+            api = `${BOT_API}/sharing-live`
             message = `Berhasil Register sharing live dengan order id **#${orderId}**`;
           } else if (type === "success") {
             message = `${username} pembayaran sharing live **${setlist}** dengan order id **#${orderId}** berhasil`;
