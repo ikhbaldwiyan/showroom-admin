@@ -94,7 +94,7 @@ exports.sendDiscordSharingUser = (req, res) => {
             api = `${BOT_API}/sharing-live`
             message = `${username} Berhasil Register sharing live dengan order id **#${orderId}**`;
           } else if (type === "success") {
-            message = `${username} pembayaran sharing live **${setlist}** dengan order id **#${orderId}** berhasil, cek detail order disini: [Detail Order **#${orderId}**](${detailOrder})`;
+            message = `${username} pembayaran sharing live **${setlist}** dengan order id **#${orderId}** berhasil, cek detail order disini: [Detail Order #${orderId}](${detailOrder})`;
           }
 
           axios
