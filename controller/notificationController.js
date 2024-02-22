@@ -91,7 +91,7 @@ exports.sendDiscordSharingUser = (req, res) => {
           /// SEND NOTIF TO DISCORD SERVER
           if (type === "register") {
             api = `${BOT_API}/sharing-live`
-            message = `Berhasil Register sharing live dengan order id **#${orderId}**`;
+            message = `${username} Berhasil Register sharing live dengan order id **#${orderId}**`;
           } else if (type === "success") {
             message = `${username} pembayaran sharing live **${setlist}** dengan order id **#${orderId}** berhasil`;
           }
