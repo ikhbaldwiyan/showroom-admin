@@ -87,13 +87,14 @@ exports.sendDiscordSharingUser = (req, res) => {
         if (discordUser) {
           const userId = discordUser.user.id;
           const username = `<@${userId}>`;
+          const detailOrder = `https://jkt48-showroom-git-feat-sharing-live-ikhbaldwiyan.vercel.app/sharing/ingin-bertemu/${sharingId}`
 
           /// SEND NOTIF TO DISCORD SERVER
           if (type === "register") {
             api = `${BOT_API}/sharing-live`
             message = `${username} Berhasil Register sharing live dengan order id **#${orderId}**`;
           } else if (type === "success") {
-            message = `${username} pembayaran sharing live **${setlist}** dengan order id **#${orderId}** berhasil`;
+            message = `${username} pembayaran sharing live **${setlist}** dengan order id **#${orderId}** berhasil, cek detail order disini: [Detail Order **#${orderId}**](${detailOrder})`;
           }
 
           axios
