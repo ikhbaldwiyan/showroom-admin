@@ -2,20 +2,44 @@ const SharingLive = require("../models/SharingLive");
 
 exports.getAllSharingLive = async (req, res) => {
   try {
-    const { search } = req.query;
+    const { 
+      limit, 
+      page,
+      search, 
+      status, 
+      date_schedule,
+    } = req.query;
+
     const searchQuery = search || '';
+
+    // Pagination 
+    const limitData = limit ?? 10;
+    const pageData = page ?? 1;
+
+    const totalData = await SharingLive.countDocuments({});
+    const totalPage = Math.ceil(totalData/ limitData);
 
     const query = {
       $or: [
-        { "user_id.user_id": { $regex: searchQuery, $options: 'i' } }, 
-        { "user_id.name": { $regex: searchQuery, $options: 'i' } },
+        { "user_name": { $regex: searchQuery, $options: 'i' } },
         { "discord_name": { $regex: searchQuery, $options: 'i' } },
         { "order_id": { $regex: searchQuery, $options: 'i' } },
-        { "schedule_id.setlist.name": { $regex: searchQuery, $options: 'i' } }, 
+        { "setlist_name": { $regex: searchQuery, $options: 'i' } }, 
       ],
     };
 
-    const sharingLives = await SharingLive.find(query)
+    if(status){
+      query.status = status
+    }
+
+    if(date_schedule){
+      let pattern = /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/
+      if(!pattern.test(date_schedule)) throw new Error('Tanggal harus mempunyai format DD-MM-YYYY')
+
+      query.date_schedule = new Date(date_schedule)
+    }
+
+    let sharingLives = await SharingLive.find(query)
       .populate({
         path: "schedule_id",
         select: "showDate showTime setlist",
@@ -27,16 +51,30 @@ exports.getAllSharingLive = async (req, res) => {
       .populate({
         path: "user_id",
         select: "name user_id",
-      });
+      })
+      .skip((pageData - 1) * limitData)
+      .limit(limitData)
+      .exec()
 
-    res.json(sharingLives);
+    let result = {
+      data: sharingLives,
+      paginator: {
+        currentPage: parseInt(pageData),
+        limit: parseInt(limitData),
+        totalPage,
+        totalData,
+      }
+    }
+
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    console.log('error', error)
+    res.status(400).json({ error: error.message });
   }
 };
 
 exports.registerSharingLive = async (req, res) => {
-  const { schedule_id, discord_name, status, user_id, image, phone_number, discord_image } = req.body;
+  const { schedule_id, discord_name, status, user_id, image, phone_number, discord_image, setlist_name, user_name, date_schedule } = req.body;
   try {
     // Find the latest order ID from the database
     const latestOrder = await SharingLive.findOne().sort({ order_id: -1 });
@@ -60,6 +98,9 @@ exports.registerSharingLive = async (req, res) => {
       image,
       phone_number,
       order_id,
+      setlist_name,
+      user_name,
+      date_schedule: new Date(date_schedule),
     });
 
     const registeredUser = await SharingLive.findOne({

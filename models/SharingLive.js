@@ -36,6 +36,18 @@ const SharingLiveSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    setlist_name: {
+      type: String,
+      required: true
+    },
+    user_name: {
+      type: String,
+      required: true
+    },
+    date_schedule: {
+      type: Date,
+      required: true
+    },
   },
   {
     collection: "sharing-lives",
