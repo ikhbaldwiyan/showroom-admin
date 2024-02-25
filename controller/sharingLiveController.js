@@ -54,6 +54,7 @@ exports.getAllSharingLive = async (req, res) => {
       })
       .skip((pageData - 1) * limitData)
       .limit(limitData)
+      .sort("-created_at")
       .exec()
 
     let result = {
