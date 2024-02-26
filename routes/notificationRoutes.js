@@ -7,5 +7,6 @@ router.get('/:userId', notificationController.getNotificationsByUserId);
 router.get('/', notificationController.getAllNotificationsForAdmin);
 router.post('/discord', notificationController.sendDiscordSharingUser);
 router.get('/discord/users', notificationController.checkDiscordAccount);
+router.post('/read', notificationController.readMessage);
 
 module.exports = router;

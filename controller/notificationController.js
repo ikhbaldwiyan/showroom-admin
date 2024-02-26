@@ -1,6 +1,7 @@
 const { default: axios } = require("axios");
 const Notification = require("../models/Notification");
 const { DISCORD_API, BOT_API } = require("../utils/api");
+const { responseSuccess, responseError } = require("../utils/response");
 
 exports.createNotification = async (req, res) => {
   try {
@@ -127,3 +128,21 @@ exports.sendDiscordSharingUser = (req, res) => {
     console.log(error);
   }
 };
+
+exports.readMessage = async (req,res) => {
+
+  const { notification_ids } = req.body
+
+  try {
+
+    const update_isread = await Notification.updateMany({_id: { $in: notification_ids}}, {isRead: true});
+
+    let response = responseSuccess(200, 'Success Update')
+
+    res.status(200).json(response)
+  } catch (error) {
+    console.log('error', error)
+    let response = responseError(500, error ? error.message : 'Internal Server error')
+    res.status(500).json(response);
+  }
+}
