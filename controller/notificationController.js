@@ -1,6 +1,7 @@
 const { default: axios } = require("axios");
 const Notification = require("../models/Notification");
 const { DISCORD_API, BOT_API } = require("../utils/api");
+const { responseSuccess, responseError } = require("../utils/response");
 
 exports.createNotification = async (req, res) => {
   try {
@@ -22,8 +23,8 @@ exports.getNotificationsByUserId = async (req, res) => {
 
     // Mark notifications as read
     await Notification.updateMany(
-      { userId, isRead: false },
-      { $set: { isRead: true } }
+      { userId, isReadUser: false },
+      { $set: { isReadUser: true } }
     );
 
     res.status(200).json(notifications);
@@ -127,3 +128,39 @@ exports.sendDiscordSharingUser = (req, res) => {
     console.log(error);
   }
 };
+
+exports.readNotificationAdmin = async (req,res) => {
+
+  const { notification_ids } = req.body
+
+  try {
+
+    const update_isread = await Notification.updateMany({_id: { $in: notification_ids}}, {isReadAdmin: true});
+
+    let response = responseSuccess(200, 'Success Update')
+
+    res.status(200).json(response)
+  } catch (error) {
+    console.log('error', error)
+    let response = responseError(500, error ? error.message : 'Internal Server error')
+    res.status(500).json(response);
+  }
+}
+
+exports.readNotification = async (req,res) => {
+
+  const { notification_ids } = req.body
+
+  try {
+
+    const update_isread = await Notification.updateMany({_id: { $in: notification_ids}}, {isReadUser: true});
+
+    let response = responseSuccess(200, 'Success Update')
+
+    res.status(200).json(response)
+  } catch (error) {
+    console.log('error', error)
+    let response = responseError(500, error ? error.message : 'Internal Server error')
+    res.status(500).json(response);
+  }
+}

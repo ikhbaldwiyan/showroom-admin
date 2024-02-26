@@ -1,4 +1,6 @@
 const SharingLive = require("../models/SharingLive");
+const notification = require("../models/Notification");
+const moment = require('moment')
 
 exports.getAllSharingLive = async (req, res) => {
   try {
@@ -115,7 +117,22 @@ exports.registerSharingLive = async (req, res) => {
         .json({ message: "User is already registered for this sharing live." });
     }
 
-    await newsharingLive.save();
+    let create_sharing_live = await newsharingLive.save();
+
+    console.log('create_sharing_live', create_sharing_live)
+
+    // * Send Notification
+    const payload_notification = {
+      userId: user_id,
+      message: `Sukses register ${setlist_name} tanggal ${moment(date_schedule).format('DD MMMM')} dengan order id ${create_sharing_live.order_id}`,
+      type: 'Sharing Live',
+      isReadAdmin: false,
+      isReadUser: false,
+      route: `/admin/sharing-lives?sharing_id=${create_sharing_live._id}`
+    }
+
+    await notification.create(payload_notification);
+
     res.status(201).json(newsharingLive);
   } catch (error) {
     console.log(error);

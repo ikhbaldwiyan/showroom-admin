@@ -15,13 +15,21 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    isRead: {
+    isReadAdmin: {
+      type: Boolean,
+      default: false, // Notification is unread by default
+    },
+    isReadUser: {
       type: Boolean,
       default: false, // Notification is unread by default
     },
     createdAt: {
       type: Date,
       default: Date.now,
+    },
+    route: {
+      type: String,
+      required: false
     },
   },
   {
