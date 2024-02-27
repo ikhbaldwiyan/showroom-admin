@@ -124,7 +124,7 @@ exports.registerSharingLive = async (req, res) => {
     // * Send Notification
     const payload_notification = {
       userId: user_id,
-      message: `Sukses register ${setlist_name} tanggal ${moment(date_schedule).format('DD MMMM')} dengan order id ${create_sharing_live.order_id}`,
+      message: `Register ${setlist_name} dengan order id ${create_sharing_live.order_id}`,
       type: 'Sharing Live',
       isReadAdmin: false,
       isReadUser: false,

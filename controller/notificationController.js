@@ -39,7 +39,7 @@ exports.getAllNotificationsForAdmin = async (req, res) => {
     const notifications = await Notification.find()
       .populate({
         path: "userId",
-        select: "name user_id",
+        select: "name user_id avatar",
       })
       .sort({ createdAt: -1 });
 
