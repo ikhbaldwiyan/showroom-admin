@@ -19,7 +19,7 @@ const notificationSchema = new mongoose.Schema(
       type: Boolean,
       default: false, // Notification is unread by default
     },
-    isReadUser: {
+    isRead: {
       type: Boolean,
       default: false, // Notification is unread by default
     },
