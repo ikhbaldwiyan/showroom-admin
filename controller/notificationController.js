@@ -98,20 +98,27 @@ exports.sendDiscordSharingUser = (req, res) => {
             message = `${username} pembayaran sharing live **${setlist}** berhasil, cek detail order disini: [Detail Order #${orderId}](${detailOrder})`;
           }
 
-          axios
-            .post(api, {
+          axios.post(
+            api,
+            {
               type: "sharing",
               messageType: "chat",
               message,
               sharingId,
               discordName: username,
-            })
-            .then((res) => {
-              console.log(res.data);
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${process.env.MESSAGE_BOT_TOKEN}`,
+              },
+            }
+          )
+          .then((res) => {
+            console.log(res.data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
 
           res.json({
             user: discordUser,
