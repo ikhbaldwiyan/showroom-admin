@@ -1,5 +1,4 @@
 const Member = require("../models/Member");
-const { uploadImage } = require("../utils/upload");
 
 exports.getAllMembers = async (req, res) => {
   try {
@@ -54,27 +53,12 @@ exports.getMemberById = async (req, res) => {
 // POST a new member
 exports.createMember = async (req, res) => {
   try {
-    const { name, stage_name, type } = req.body;
-    
-    const image = await uploadImage(req.file, 'member')
-
-    if(!image){
-      throw Error('Failed Upload Image, please try again!')
-    }
-
-    const newMember = new Member({ name, stage_name, type, image: image?.image?.url });
-
-    await newMember.save();
-    res.status(201).json({
-      success: true,
-      message: `Success Created member name ${stage_name}`
-    });
+    const { name, stage_name, type, image } = req.body;
+    const newMember = new Member({ name, stage_name, type, image });
+    const createdMember = await newMember.save();
+    res.json(createdMember);
   } catch (error) {
-    console.log('error', error)
-    res.status(400).send({
-      success: false, 
-      message: error.message
-    });
+    res.status(500).send("Internal Server Error");
   }
 };
 
