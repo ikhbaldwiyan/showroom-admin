@@ -6,7 +6,7 @@ const router = express.Router();
 router.get('/', memberController.getAllMembers);
 router.post('/', memberController.createMember);
 router.get('/:id', memberController.getMemberById);
-router.put('/:id', memberController.updateMember);
+router.put('/:id', upload.single('image'), memberController.updateMember);
 router.delete('/:id', memberController.deleteMember);
 
 module.exports = router;
