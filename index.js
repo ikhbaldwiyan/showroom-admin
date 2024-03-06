@@ -28,7 +28,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static("image"));
 require("dotenv").config();
-app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB
 mongoose
