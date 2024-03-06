@@ -65,23 +65,16 @@ exports.createMember = async (req, res) => {
 // PUT (update) an existing member
 exports.updateMember = async (req, res) => {
   try {
-    const { name, stage_name, type } = req.body;
-
-    const image = await uploadImage(req.file, 'member')
-
+    const { name, stage_name, type, image } = req.body;
     const updatedMember = await Member.findByIdAndUpdate(
       req.params.id,
-      { name, stage_name, type, image: image?.image?.url  },
+      { name, stage_name, type, image },
       { new: true }
     );
     if (!updatedMember) return res.status(404).send("Member not found.");
     res.json(updatedMember);
   } catch (error) {
-    console.log('error', error)
-    res.status(400).send({
-      success: false, 
-      message: error.message
-    });
+    res.status(500).send("Internal Server Error");
   }
 };
 
