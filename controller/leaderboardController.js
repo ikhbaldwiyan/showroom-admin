@@ -101,11 +101,13 @@ exports.getLeaderboard = async (req, res) => {
 
       // Fetch user data and map with watch time for paginated users
       paginatedUsers = await Promise.all(
-        paginatedUsers.map(async (userData) => {
+        paginatedUsers.map(async (userData, index) => {
           const user = await User.findById(userData._id)
             .select("_id user_id name avatar")
             .exec();
+          const rank = startIndex + index + 1; // Calculate rank based on pagination
           return {
+            rank: rank,
             ...userData,
             user_id: user.user_id,
             name: user.name,
@@ -133,14 +135,24 @@ exports.getLeaderboard = async (req, res) => {
     const totalData = await User.countDocuments({});
     const totalPage = Math.ceil(totalData / limitData);
 
-    const users = await User.find()
-      .select(
-        "_id name user_id avatar totalWatchLive watchLiveIDN watchShowroomMember"
-      )
-      .sort({ [sort]: -1 })
-      .skip((pageData - 1) * limitData)
-      .limit(limitData)
-      .exec();
+    let users = [];
+
+    if (!filterBy) {
+      users = await User.find()
+        .select(
+          "_id name user_id avatar totalWatchLive watchLiveIDN watchShowroomMember"
+        )
+        .sort({ [sort]: -1 })
+        .skip((pageData - 1) * limitData)
+        .limit(limitData)
+        .exec();
+
+      // Calculate rank for each user
+      users = users.map((user, index) => ({
+        rank: (pageData - 1) * limitData + index + 1,
+        ...user._doc,
+      }));
+    }
 
     if (!filterBy) {
       result = {
