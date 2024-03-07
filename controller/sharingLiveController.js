@@ -1,6 +1,7 @@
 const SharingLive = require("../models/SharingLive");
 const notification = require("../models/Notification");
-const moment = require('moment')
+const moment = require('moment');
+const { responseError } = require("../utils/response");
 
 exports.getAllSharingLive = async (req, res) => {
   try {
@@ -119,16 +120,14 @@ exports.registerSharingLive = async (req, res) => {
 
     let create_sharing_live = await newsharingLive.save();
 
-    console.log('create_sharing_live', create_sharing_live)
-
     // * Send Notification
     const payload_notification = {
       userId: user_id,
       message: `Register ${setlist_name} dengan order id ${create_sharing_live.order_id}`,
       type: 'Sharing Live',
       isReadAdmin: false,
-      isReadUser: false,
-      route: `/admin/sharing-lives?sharing_id=${create_sharing_live._id}`
+      isRead: false,
+      route: `/admin/sharing-lives?sharing_id=${create_sharing_live._id}`,
     }
 
     await notification.create(payload_notification);

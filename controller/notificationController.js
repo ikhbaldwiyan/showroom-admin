@@ -17,9 +17,20 @@ exports.createNotification = async (req, res) => {
 exports.getNotificationsByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
+    const { limit, page } = req.query
+
+    const limitData = limit ?? 10;
+    const pageData = page ?? 1;
+
+    const totalData = await Notification.countDocuments({});
+    const totalPage = Math.ceil(totalData / limitData);
+
     const notifications = await Notification.find({ userId }).sort({
       createdAt: -1,
-    });
+    })
+    .skip((pageData - 1) * limitData)
+    .limit(limitData)
+    .exec();
 
     // Mark notifications as read
     await Notification.updateMany(
@@ -27,7 +38,17 @@ exports.getNotificationsByUserId = async (req, res) => {
       { $set: { isReadUser: true } }
     );
 
-    res.status(200).json(notifications);
+    let result =  {
+      data: notifications,
+      paginator: {
+        currentPage: parseInt(pageData),
+        limit: parseInt(limitData),
+        totalPage,
+        totalData,
+      },
+    };
+
+    res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -35,15 +56,36 @@ exports.getNotificationsByUserId = async (req, res) => {
 
 exports.getAllNotificationsForAdmin = async (req, res) => {
   try {
+    const { limit, page } = req.query
+
+    const limitData = limit ?? 10;
+    const pageData = page ?? 1;
+
+    const totalData = await Notification.countDocuments({});
+    const totalPage = Math.ceil(totalData / limitData);
+
     // Fetch all notifications
     const notifications = await Notification.find()
       .populate({
         path: "userId",
         select: "name user_id avatar",
       })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip((pageData - 1) * limitData)
+      .limit(limitData)
+      .exec();
 
-    res.status(200).send(notifications);
+    let result =  {
+      data: notifications,
+      paginator: {
+        currentPage: parseInt(pageData),
+        limit: parseInt(limitData),
+        totalPage,
+        totalData,
+      },
+    };
+
+    res.status(200).send(result);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -160,7 +202,7 @@ exports.readNotification = async (req,res) => {
 
   try {
 
-    const update_isread = await Notification.updateMany({_id: { $in: notification_ids}}, {isReadUser: true});
+    const update_isread = await Notification.updateMany({_id: { $in: notification_ids}}, {isRead: true});
 
     let response = responseSuccess(200, 'Success Update')
 
@@ -169,5 +211,48 @@ exports.readNotification = async (req,res) => {
     console.log('error', error)
     let response = responseError(500, error ? error.message : 'Internal Server error')
     res.status(500).json(response);
+  }
+}
+
+exports.countNotification = async (req, res) => {
+  let statusCode = 500,
+    response = responseError(statusCode, 'Internal Server Error')
+
+  try {
+    const { userId } = req.params;
+
+    let countNotification = await Notification.find({ $and : [{isRead: false}, { userId }]}).countDocuments({}).exec()
+
+    statusCode = 200
+    response = responseSuccess(statusCode, 'Success', { totalCount : countNotification })
+    
+  } catch (error) {
+    console.log('error', error.message)
+    statusCode = 400
+    response = responseError(statusCode, error.message)
+  }finally {
+    
+    res.status(statusCode).json(response)
+  }
+}
+
+exports.countNotificationAdmin = async (req, res) => {
+  let statusCode = 500,
+    response = responseError(statusCode, 'Internal Server Error')
+
+  try {
+
+    let countNotification = await Notification.find({isReadAdmin: false}).countDocuments({}).exec()
+
+    statusCode = 200
+    response = responseSuccess(statusCode, 'Success', { totalCount : countNotification })
+    
+  } catch (error) {
+    console.log('error', error.message)
+    statusCode = 400
+    response = responseError(statusCode, error.message)
+  }finally {
+    
+    res.status(statusCode).json(response)
   }
 }
